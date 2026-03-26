@@ -30,6 +30,7 @@ class AuthService {
       );
     } on FirebaseAuthException catch (e) {
       throw _handleError(e);
+      
     }
   }
 
