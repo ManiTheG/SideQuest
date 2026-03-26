@@ -1,15 +1,17 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
+
+  // instanciranje FirebaseAuth-a koji će se bbrinuti za autentifikaciju
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
- 
+  // getter za Stream podataka (login user/logout null) u kojem auth sluša promjene
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
-
+  // getter za trenutnog korisnika (ako je prijavljen) ili null
   User? get currentUser => _auth.currentUser;
 
-
+  // fukcija za singup korisnika. pokušava kreirat user-a, ako uspije vrača UserCredetials ako ne, baca error
   Future<UserCredential?> signUp(String email, String password) async {
     try {
       return await _auth.createUserWithEmailAndPassword(
@@ -21,7 +23,7 @@ class AuthService {
     }
   }
 
-
+  //funkcija za login korisnika. Pokušava prijavit korisnika, ako uspije vrača UserCredetials ako ne, baca error
   Future<UserCredential?> login(String email, String password) async {
     try {
       return await _auth.signInWithEmailAndPassword(
@@ -34,12 +36,12 @@ class AuthService {
     }
   }
 
-
+  //fnkcija za logout/sign out
   Future<void> logout() async {
     await _auth.signOut();
   }
 
-
+  //resetiranje lozinke. Pokušava poslati email za resetiranje lozinke, ako ne uspije baca error
   Future<void> resetPassword(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email.trim());
@@ -48,7 +50,7 @@ class AuthService {
     }
   }
 
-
+  // Firebase error se prevodi/mapira u razumnije poruke za korisnika
   String _handleError(FirebaseAuthException e) {
     switch (e.code) {
       case 'email-already-in-use':
