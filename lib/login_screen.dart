@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sidequest/signup_screen.dart';
 import '../services/auth_service.dart';
 
 
@@ -16,7 +17,22 @@ class _LoginScreenState extends State<LoginScreen>{
   bool _isLoading = false;
   String? _errorMessage;
 
-  Future <void> _Login() async{
+  @override
+  void dispose(){
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future <void> _login() async{
+
+    if(_emailController.text.isEmpty || _passwordController.text.isEmpty){
+      setState(() => _errorMessage = 'Please enter email and password to proceed.');
+      _emailController.clear();
+      _passwordController.clear();
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -33,52 +49,74 @@ class _LoginScreenState extends State<LoginScreen>{
 
   }
 
-  Future <void> _ResetPassword() async{
+  Future <void> _resetPassword() async{
     if(_emailController.text.isEmpty){
       setState(() => _errorMessage = 'Please enter your email to reset password.');
+      _emailController.clear();
       return;
     }
-    await _authService.resetPassword(_emailController.text);
-    setState(()=> _errorMessage = 'Password reset email sent. Please check your inbox.');
+    try{
+      await _authService.resetPassword(_emailController.text);
+      setState(()=> _errorMessage = 'Password reset email sent. Please check your inbox.');
+    } catch(e){
+      setState(() => _errorMessage =e.toString());
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(title: const Text("Login")),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+
+            //email inpput field, input tip je eamil, prelazi na password
             TextField(
               controller: _emailController,
               decoration: const InputDecoration(labelText: 'Email'),
               keyboardType: TextInputType.emailAddress,
+              textInputAction: TextInputAction.next,
             ),
             const SizedBox(height: 16),
 
+            //password input field, zvjezdasti tekst, n enter pozivae login
             TextField(
               controller: _passwordController,
               decoration: const InputDecoration(labelText: 'Password'),  
               //keyboardType: TextInputType.visiblePassword,   
-              obscureText: true,       
+              obscureText: true,   
+              textInputAction: TextInputAction.done,
+              onSubmitted: (_) => _login(),   
             ),
+
+            //Postojanje greske ispod password polja
             if(_errorMessage !=null)...[
               const SizedBox(height: 16),
               Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
             ],
             const SizedBox(height: 24),
             _isLoading
-            ? const CircularProgressIndicator()
+            ? const Center(child: CircularProgressIndicator())
+
+            //gumb za poziv login funkcije
             : ElevatedButton(
-              onPressed: _Login,
+              onPressed: _login,
               child: const Text('Login'),
             ),
+
+            //tekstualni gumb za mjejanje lozinke
             TextButton(
-              onPressed: _ResetPassword, 
+              onPressed: _resetPassword, 
               child: const Text('Forgot Password?')),
+
+            //tekstualni gumb za promjenu na singup screen
             TextButton(
-              onPressed: () => Navigator.pushNamed(context, '/signup'),
+              onPressed:  ()=> Navigator.push(context, MaterialPageRoute(builder: (context) => const SignupScreen()),
+              ), 
               child: const Text("Don't have an account? Signup and join us!"),
             ),
           ],
