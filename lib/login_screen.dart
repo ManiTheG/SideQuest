@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:sidequest/signup_screen.dart';
 import '../services/auth_service.dart';
 
+class AppColors {
+  static const primaryBackground = Color(0xFF101828);
+  static const textColor = Colors.white;
+  static const buttonColor = Colors.blue;
+  static const inactiveButtonColor = Colors.grey;
+}
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,8 +17,10 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen>{
+
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final AuthService _authService = AuthService();
   bool _isLoading = false;
   String? _errorMessage;
@@ -21,6 +29,7 @@ class _LoginScreenState extends State<LoginScreen>{
   void dispose(){
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -49,6 +58,7 @@ class _LoginScreenState extends State<LoginScreen>{
 
   }
 
+  //mjenjat će se još amo plaseholder fiunkcaja mjenjanje
   Future <void> _resetPassword() async{
     if(_emailController.text.isEmpty){
       setState(() => _errorMessage = 'Please enter your email to reset password.');
@@ -93,8 +103,7 @@ class _LoginScreenState extends State<LoginScreen>{
             const SizedBox(height: 8),
             Text('Login to continue', style: TextStyle(color: Colors.white60, fontSize: 20)),
             const SizedBox(height: 20),
-
-            //email inpput field, input tip je eamil, prelazi na password
+            //email
             TextField(
               controller: _emailController,
               style: TextStyle(color: Colors.white),
@@ -113,7 +122,7 @@ class _LoginScreenState extends State<LoginScreen>{
             ),
             const SizedBox(height: 16),
 
-            //password input field, zvjezdasti tekst, n enter pozivae login
+            //password
             TextField(
               controller: _passwordController,
               style: TextStyle(color: Colors.white),
