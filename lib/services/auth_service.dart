@@ -12,7 +12,7 @@ class AuthService {
   User? get currentUser => _auth.currentUser;
 
   // fukcija za singup korisnika. pokušava kreirat user-a, ako uspije vrača UserCredetials ako ne, baca error
-  Future<UserCredential?> signUp(String email, String password) async {
+  Future<UserCredential> signUp(String email, String password) async {
     try {
       return await _auth.createUserWithEmailAndPassword(
         email: email.trim(),
@@ -24,7 +24,7 @@ class AuthService {
   }
 
   //funkcija za login korisnika. Pokušava prijavit korisnika, ako uspije vrača UserCredetials ako ne, baca error
-  Future<UserCredential?> login(String email, String password) async {
+  Future<UserCredential> login(String email, String password) async {
     try {
       return await _auth.signInWithEmailAndPassword(
         email: email.trim(),
