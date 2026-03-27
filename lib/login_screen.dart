@@ -166,7 +166,8 @@ class _LoginScreenState extends State<LoginScreen>{
               ),
               child: const Text('Login', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
-
+            const SizedBox(height: 16),
+            
             //tekstualni gumb za mjejanje lozinke
             TextButton(
               onPressed: _resetPassword, 

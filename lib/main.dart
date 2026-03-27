@@ -3,7 +3,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 import 'login_screen.dart';
-import 'signup_screen.dart';
 import 'home_screen.dart';
 
 void main() async {
@@ -35,3 +34,12 @@ class MyApp extends StatelessWidget {
     );
   }
   }
+
+
+  /*citanje iz baze:
+  final doc = await FirebaseFirestore.instance
+    .collection('users')
+    .doc(uid)
+    .get();
+
+List<String> interests = List<String>.from(doc['interests']);*/
