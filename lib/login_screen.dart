@@ -117,7 +117,8 @@ class _LoginScreenState extends State<LoginScreen>{
               onPressed: _login,
               child: const Text('Login'),
             ),
-
+            const SizedBox(height: 16),
+            
             //tekstualni gumb za mjejanje lozinke
             TextButton(
               onPressed: _resetPassword, 
@@ -127,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen>{
             TextButton(
               onPressed:  ()=> Navigator.push(context, MaterialPageRoute(builder: (context) => const SignupScreen()),
               ), 
-              child: const Text("Don't have an account? Signup and join us!"),
+              child: const Text("Don't have an account? Sign up and join us!"),
             ),
           ],
         ),
