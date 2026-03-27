@@ -67,17 +67,47 @@ class _LoginScreenState extends State<LoginScreen>{
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(title: const Text("Login")),
-      body: Padding(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color.fromARGB(255, 16, 24, 40), Color.fromARGB(255, 29, 52, 97)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        
+        child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const SizedBox(height: 12),
+            Icon(Icons.lock_rounded, size: 64, color: Colors.white),
+            const SizedBox(height: 8),
+            Text('Welcome Back', style: TextStyle(
+              fontSize: 40,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            )),
+            const SizedBox(height: 8),
+            Text('Login to continue', style: TextStyle(color: Colors.white60, fontSize: 20)),
+            const SizedBox(height: 20),
 
             //email inpput field, input tip je eamil, prelazi na password
             TextField(
               controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
+              style: TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Email',
+                labelStyle: TextStyle(color: Colors.white60),
+                filled: true,
+                fillColor: Color.fromARGB(255, 55, 73, 87),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: BorderSide.none,
+                ),
+              ),
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
             ),
@@ -86,7 +116,17 @@ class _LoginScreenState extends State<LoginScreen>{
             //password input field, zvjezdasti tekst, n enter pozivae login
             TextField(
               controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),  
+              style: TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Password',
+                labelStyle: TextStyle(color: Colors.white60),
+                filled: true,
+                fillColor: Color.fromARGB(255, 55, 73, 87),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: BorderSide.none,
+                ),
+                ),  
               //keyboardType: TextInputType.visiblePassword,   
               obscureText: true,   
               textInputAction: TextInputAction.done,
@@ -105,7 +145,17 @@ class _LoginScreenState extends State<LoginScreen>{
             //gumb za poziv login funkcije
             : ElevatedButton(
               onPressed: _login,
-              child: const Text('Login'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromARGB(255, 16, 103, 234),
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25)
+                ),
+                elevation: 4,
+                shadowColor: Color(0xFF6C63FF).withValues(alpha: 0.4)
+              ),
+              child: const Text('Login', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
 
             //tekstualni gumb za mjejanje lozinke
@@ -117,10 +167,12 @@ class _LoginScreenState extends State<LoginScreen>{
             TextButton(
               onPressed:  ()=> Navigator.push(context, MaterialPageRoute(builder: (context) => const SignupScreen()),
               ), 
-              child: const Text("Don't have an account? Signup and join us!"),
+              child: const Text("Don't have an account? Sign up and join us!"),
             ),
+            const SizedBox(height: 100,)
           ],
         ),
+      ),
       ),
     );
   }
