@@ -227,8 +227,35 @@ class _SignupScreenState extends State<SignupScreen>{
                   ),
                 obscureText: true,
               ),
-              const SizedBox(height: 24),
-        
+              const SizedBox(height: 12),
+
+              AnimatedSize(
+                duration: Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                child: _errorMessage != null
+                  ? Container(
+                      margin: EdgeInsets.only(top: 16),
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withValues(alpha: 0.15),  // light red background
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.red.withValues(alpha: 0.4)), // subtle red border
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.error_outline, color: Colors.red, size: 18),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+                          ),
+                        ],
+                      ),
+                    )
+                  : SizedBox.shrink(),
+              ),
+
+              const SizedBox(height: 12),
+
               //lista hobbija
               const Text('Select your interests:',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
@@ -258,16 +285,6 @@ class _SignupScreenState extends State<SignupScreen>{
                 }).toList(),
               ),
               const SizedBox(height:24),
-        
-        
-              if (_errorMessage != null)...[
-                Text(
-                  _errorMessage!,
-                  style: const TextStyle(color: Colors.red),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 5),
-              ],
         
               _isLoading? const Center (child: CircularProgressIndicator())
               : ElevatedButton(
