@@ -83,7 +83,8 @@ class _LoginScreenState extends State<LoginScreen>{
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(height: 12),
-            Icon(Icons.lock_rounded, size: 64, color: Colors.white),
+            //Icon(Icons.lock_rounded, size: 64, color: Colors.white),
+            Image.asset('assets/img/SQ.png', height: 64),
             const SizedBox(height: 8),
             Text('Welcome Back', style: TextStyle(
               fontSize: 40,
@@ -134,14 +135,31 @@ class _LoginScreenState extends State<LoginScreen>{
             ),
 
             //Postojanje greske ispod password polja
-            if(_errorMessage !=null)...[
+            /*if(_errorMessage !=null)...[
               const SizedBox(height: 16),
-              Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
-            ],
-            const SizedBox(height: 24),
-            _isLoading
-            ? const Center(child: CircularProgressIndicator())
+              Padding(padding: const EdgeInsets.only(left: 24)),
+              child: Text(_errorMessage!, style: const TextStyle(color: Colors.red),),
+            ],*/
 
+            if (_errorMessage != null) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: EdgeInsets.only(left: 12),
+                alignment: Alignment.centerLeft,
+                child: Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+              ),
+            ],
+
+             //tekstualni gumb za mjejanje lozinke
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                alignment: Alignment.centerLeft,
+                ),
+              onPressed: _resetPassword, 
+              child: const Text('Forgot Password?')),
+
+            _isLoading? const Center(child: CircularProgressIndicator())
             //gumb za poziv login funkcije
             : ElevatedButton(
               onPressed: _login,
@@ -158,13 +176,12 @@ class _LoginScreenState extends State<LoginScreen>{
               child: const Text('Login', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
 
-            //tekstualni gumb za mjejanje lozinke
-            TextButton(
-              onPressed: _resetPassword, 
-              child: const Text('Forgot Password?')),
-
             //tekstualni gumb za promjenu na singup screen
             TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                alignment: Alignment.center,
+                ),
               onPressed:  ()=> Navigator.push(context, MaterialPageRoute(builder: (context) => const SignupScreen()),
               ), 
               child: const Text("Don't have an account? Sign up and join us!"),
