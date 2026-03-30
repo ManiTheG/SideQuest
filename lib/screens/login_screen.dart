@@ -142,14 +142,30 @@ class _LoginScreenState extends State<LoginScreen>{
               child: Text(_errorMessage!, style: const TextStyle(color: Colors.red),),
             ],*/
 
-            if (_errorMessage != null) ...[
-              const SizedBox(height: 16),
-              Container(
-                padding: EdgeInsets.only(left: 12),
-                alignment: Alignment.centerLeft,
-                child: Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
-              ),
-            ],
+            AnimatedSize(
+              duration: Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              child: _errorMessage != null
+                ? Container(
+                    margin: EdgeInsets.only(top: 16),
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withValues(alpha: 0.15),  // light red background
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.red.withValues(alpha: 0.4)), // subtle red border
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.error_outline, color: Colors.red, size: 18),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+                        ),
+                      ],
+                    ),
+                  )
+                : SizedBox.shrink(),
+            ),
 
              //tekstualni gumb za mjejanje lozinke
             TextButton(

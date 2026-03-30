@@ -116,93 +116,202 @@ class _SignupScreenState extends State<SignupScreen>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       //resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-      centerTitle: true,
-      title: const Text('Sign up')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-
-            //koisnicko ime
-            TextField(
-              controller: _userNameController,
-              decoration: const InputDecoration(labelText: 'Username'),
-              //style: TextStyle(fontSize: 10),
-            ),
-            const SizedBox(height: 16),
-            //email
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
-              keyboardType: TextInputType.emailAddress
-            ),
-            const SizedBox(height: 16),
-            //loinka/zaporka
-
-            //lozinka
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true,
-            ),
-            const SizedBox(height: 16),
-
-            //ponavljanje lozinke
-            TextField(
-              controller: _confirmPasswordController,
-              decoration:  const InputDecoration(labelText: 'Please confim password'),
-              obscureText: true,
-            ),
-            const SizedBox(height: 24),
-
-            //lista hobbija
-            const Text('Select your interests:',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height:16),
-
-
-            //tipkice za interes
-            Wrap(
-              alignment: WrapAlignment.center,
-              runAlignment: WrapAlignment.center,
-              spacing: 8,
-              runSpacing: 4,
-              children: _allInterests.map((interest){
-                final isSelected = _userInterests.contains(interest);
-                return FilterChip(
-                  label: Text(interest), 
-                  selected: isSelected,
-                  onSelected: (_) => _selectToggle(interest),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height:24),
-
-
-            if (_errorMessage != null)...[
-              Text(
-                _errorMessage!,
-                style: const TextStyle(color: Colors.red),
-                textAlign: TextAlign.center,
+      body: Container(
+        constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color.fromARGB(255, 16, 24, 40), Color.fromARGB(255, 29, 52, 97)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SafeArea(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(255, 16, 103, 234),
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
+                      padding: EdgeInsets.all(8),
+                      constraints: BoxConstraints(),
+                    ),
+                  ),
+                ),
               ),
-              const SizedBox(height: 5),
+
+              Text('Sign Up', style: TextStyle(
+                fontSize: 40,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              )),
+
+              const SizedBox(height:35),
+              //koisnicko ime
+              TextField(
+                controller: _userNameController,
+                style: TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: 'Username',
+                  labelStyle: TextStyle(color: Colors.white60),
+                  filled: true,
+                  fillColor: Color.fromARGB(255, 55, 73, 87),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide.none,
+                    ),
+                  ),
+                //style: TextStyle(fontSize: 10),
+              ),
+              const SizedBox(height: 16),
+              //email
+              TextField(
+                controller: _emailController,
+                style: TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  labelStyle: TextStyle(color: Colors.white60),
+                  filled: true,
+                  fillColor: Color.fromARGB(255, 55, 73, 87),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide.none,
+                    ),
+                  ),
+                keyboardType: TextInputType.emailAddress
+              ),
+              const SizedBox(height: 16),
+              //loinka/zaporka
+        
+              //lozinka
+              TextField(
+                controller: _passwordController,
+                style: TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  labelStyle: TextStyle(color: Colors.white60),
+                  filled: true,
+                  fillColor: Color.fromARGB(255, 55, 73, 87),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide.none,
+                    ),
+                ),
+                obscureText: true,
+              ),
+              const SizedBox(height: 16),
+        
+              //ponavljanje lozinke
+              TextField(
+                controller: _confirmPasswordController,
+                style: TextStyle(color: Colors.white),
+                decoration:  InputDecoration(
+                  labelText: 'Please confim password',
+                  labelStyle: TextStyle(color: Colors.white60),
+                  filled: true,
+                  fillColor: Color.fromARGB(255, 55, 73, 87),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide.none,
+                    ),
+                  ),
+                obscureText: true,
+              ),
+              const SizedBox(height: 12),
+
+              AnimatedSize(
+                duration: Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                child: _errorMessage != null
+                  ? Container(
+                      margin: EdgeInsets.only(top: 16),
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withValues(alpha: 0.15),  // light red background
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.red.withValues(alpha: 0.4)), // subtle red border
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.error_outline, color: Colors.red, size: 18),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+                          ),
+                        ],
+                      ),
+                    )
+                  : SizedBox.shrink(),
+              ),
+
+              const SizedBox(height: 12),
+
+              //lista hobbija
+              const Text('Select your interests:',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              const SizedBox(height:16),
+        
+        
+              //tipkice za interes
+              Wrap(
+                alignment: WrapAlignment.center,
+                runAlignment: WrapAlignment.center,
+                spacing: 8,
+                runSpacing: 4,
+                children: _allInterests.map((interest){
+                  final isSelected = _userInterests.contains(interest);
+                  return FilterChip(
+                    label: Text(interest, style: TextStyle(color: isSelected ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(179, 255, 255, 255))),
+                    selected: isSelected,
+                    onSelected: (_) => _selectToggle(interest),
+                    backgroundColor: Color.fromARGB(255, 55, 73, 87),
+                    selectedColor: Color.fromARGB(255, 16, 103, 234),
+                    checkmarkColor: Colors.white,
+                    side: BorderSide.none,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    showCheckmark: false,
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height:24),
+        
+              _isLoading? const Center (child: CircularProgressIndicator())
+              : ElevatedButton(
+                onPressed: _signUp,
+                style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromARGB(255, 16, 103, 234),
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25)
+                ),
+                elevation: 4,
+                shadowColor: Color(0xFF6C63FF).withValues(alpha: 0.4)
+              ),
+                child: const Text('Sign up', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))
+              ),
+        
+              //povratak na login
+              TextButton(
+                onPressed: () => Navigator.pop(context), 
+                style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                alignment: Alignment.center,
+                ),
+                child: const Text('Already have an account? Login'))
             ],
-
-            _isLoading? const Center (child: CircularProgressIndicator())
-            : ElevatedButton(
-              onPressed: _signUp,
-              child: const Text('Sign up')
-            ),
-
-            //povratak na login
-            TextButton(
-              onPressed: () => Navigator.pop(context), 
-              child: const Text('Already have an account? Login'))
-          ],
+          ),
         ),
       )
     );
