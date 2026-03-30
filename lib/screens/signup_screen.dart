@@ -257,8 +257,7 @@ class _SignupScreenState extends State<SignupScreen>{
               const SizedBox(height: 12),
 
               //lista hobbija
-              const Text('Select your interests:',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+              const Text('Select your interests:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
               ),
               const SizedBox(height:16),
         

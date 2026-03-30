@@ -50,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen>{
 
   }
 
-  Future <void> _resetPassword() async{
+  /*Future <void> _resetPassword() async{
     if(_emailController.text.isEmpty){
       setState(() => _errorMessage = 'Please enter your email to reset password.');
       _emailController.clear();
@@ -60,9 +60,9 @@ class _LoginScreenState extends State<LoginScreen>{
       await _authService.resetPassword(_emailController.text);
       setState(()=> _errorMessage = 'Password reset email sent. Please check your inbox.');
     } catch(e){
-      setState(() => _errorMessage =e.toString());
+      setState(() => _errorMessage = e.toString());
     }
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -80,11 +80,12 @@ class _LoginScreenState extends State<LoginScreen>{
         child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
-          //mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(height: 12),
-            //Icon(Icons.lock_rounded, size: 64, color: Colors.white),
+
+            //TODO: povečaj ikonu i zamjeni u failu img sa logom bez pozadine
             Image.asset('assets/img/SQ.png', height: 64),
             const SizedBox(height: 8),
             Text('Welcome Back', style: TextStyle(
@@ -145,8 +146,8 @@ class _LoginScreenState extends State<LoginScreen>{
             AnimatedSize(
               duration: Duration(milliseconds: 300),
               curve: Curves.easeInOut,
-              child: _errorMessage != null
-                ? Container(
+              child: _errorMessage != null ? 
+              Container(
                     margin: EdgeInsets.only(top: 16),
                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
@@ -173,8 +174,9 @@ class _LoginScreenState extends State<LoginScreen>{
                 foregroundColor: Colors.white,
                 alignment: Alignment.centerLeft,
                 ),
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ResetPasswordScreen()),), 
-              child: const Text('Forgot Password?')),
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ResetPasswordScreen()),
+              ), 
+              child: const Text('Forgot your Password?')),
 
             _isLoading? const Center(child: CircularProgressIndicator())
             //gumb za poziv login funkcije
@@ -198,8 +200,8 @@ class _LoginScreenState extends State<LoginScreen>{
               style: TextButton.styleFrom(
                 foregroundColor: Colors.white,
                 alignment: Alignment.center,
-                ),
-              onPressed:  ()=> Navigator.push(context, MaterialPageRoute(builder: (context) => const SignupScreen()),
+              ),
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SignupScreen()),
               ), 
               child: const Text("Don't have an account? Sign up and join us!"),
             ),

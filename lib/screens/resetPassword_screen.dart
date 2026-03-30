@@ -54,13 +54,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>{
         child: _isShown ? Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-
-            SafeArea(
+            Container(
+              alignment: Alignment.topLeft,
+              child: SafeArea(
                 child: Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: Alignment.topLeft,
                   child: Container(
                     decoration: BoxDecoration(
                       color: Color.fromARGB(255, 16, 103, 234),
@@ -75,9 +76,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>{
                   ),
                 ),
               ),
+            ),
 
-
-            TextField(
+             TextField(
               controller: _emailController,
               decoration: InputDecoration(
                 labelText: 'Email',
@@ -91,28 +92,38 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>{
               ),
               keyboardType: TextInputType.emailAddress,
             ),
-
+            
+            const SizedBox(height: 16),
+            
             _isLoading? const Center(child: CircularProgressIndicator())
             //gumb za poziv login funkcije
             : ElevatedButton(
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.white,
-                alignment: Alignment.center,
-              ),
               onPressed: (){
                  setState(() { _isShown = !_isShown;});
                  _resetPassword();
                  },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromARGB(255, 16, 103, 234),
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25)
+                  ),
+                  elevation: 4,
+                  shadowColor: Color(0xFF6C63FF).withValues(alpha: 0.4)
+              ),
                child: const Text('Send password reset email.')),
 
           ],
         ),
         ):
+        
         Center(
           child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+
             
           ],
           ),
