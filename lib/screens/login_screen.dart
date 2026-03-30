@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sidequest/signup_screen.dart';
+import 'package:sidequest/screens/signup_screen.dart';
 import '../services/auth_service.dart';
 
 class AppColors {
@@ -199,16 +199,13 @@ class _LoginScreenState extends State<LoginScreen>{
                 shadowColor: Color(0xFF6C63FF).withValues(alpha: 0.4)
               ),
               child: const Text('Login', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            ),
-<<<<<<< HEAD
+              ),
             const SizedBox(height: 16),
             
             //tekstualni gumb za mjejanje lozinke
             TextButton(
               onPressed: _resetPassword, 
               child: const Text('Forgot Password?')),
-=======
->>>>>>> 1dab17b (malo uređvanja)
 
             //tekstualni gumb za promjenu na singup screen
             TextButton(

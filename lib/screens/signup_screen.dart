@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sidequest/screens/home_screen.dart';
+import 'package:sidequest/services/auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../services/auth_service.dart';
+import 'dart:async';
 
 class SignupScreen extends StatefulWidget{
   const SignupScreen({super.key});
@@ -50,6 +52,8 @@ class _SignupScreenState extends State<SignupScreen>{
 
   Future<void> _signUp () async{
 
+     print('=== STEP 1: Starting signup ===');
+
     if(_userNameController.text.isEmpty || _emailController.text.isEmpty
      || _passwordController.text.isEmpty || _confirmPasswordController.text.isEmpty){
         setState (() => _errorMessage = 'All field must me filled to continue');
@@ -96,18 +100,35 @@ class _SignupScreenState extends State<SignupScreen>{
         _passwordController.text
         );
 
-      await FirebaseFirestore.instance.collection('users').doc(userCred.user!.uid).set(
+        print('=== STEP 2: Auth success, UID: ${userCred.user!.uid} ===');
+        print('=== STEP 3: User is null? ${userCred.user == null} ===');
+        print('=== STEP 4: Starting Firestore write ===');
+
+      try{
+      await firestoreSideQuest.collection('users').doc(userCred.user!.uid).set(
         {
           'username': _userNameController.text.trim(),
           'email': _emailController.text.trim(),
           'interests': _userInterests,
           'created': FieldValue.serverTimestamp(),
-        });
+        }).timeout( Duration(seconds: 10 ), onTimeout: ()=> throw Exception('Request timed out. please try again'));
+         print('=== STEP 5: Firestore write SUCCESS ===');
+      }catch(e){
+         print('=== FIRESTORE ERROR: $e ===');
+        await userCred.user?.delete();
+        setState(() => _errorMessage = 'Failed to save user data');
+      }
+
+      if(mounted){
+        Navigator.of(context).pop();
+      }
 
     }catch(e){
+      print('=== AUTH ERROR: $e ===');
       setState(()=> _errorMessage = e.toString());
     }finally{
-      _isLoading = false;
+      print('==== STEP 6: Signup process complete, isLoading false ===');
+      setState(() => _isLoading = false);
     }
 
   }
