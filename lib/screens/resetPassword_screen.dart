@@ -57,9 +57,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>{
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              alignment: Alignment.topLeft,
-              child: SafeArea(
+
+            SafeArea(
                 child: Align(
                   alignment: Alignment.topLeft,
                   child: Container(
@@ -76,7 +75,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>{
                   ),
                 ),
               ),
-            ),
+
 
              TextField(
               controller: _emailController,
@@ -113,7 +112,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>{
                   shadowColor: Color(0xFF6C63FF).withValues(alpha: 0.4)
               ),
                child: const Text('Send password reset email.')),
-
+            Spacer(),
+            Spacer()
           ],
         ),
         ):
