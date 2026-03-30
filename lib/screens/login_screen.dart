@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sidequest/signup_screen.dart';
+import 'package:sidequest/screens/resetPassword_screen.dart';
+import 'package:sidequest/screens/signup_screen.dart';
 import '../services/auth_service.dart';
 
 
@@ -79,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen>{
         child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          //mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(height: 12),
@@ -156,7 +157,7 @@ class _LoginScreenState extends State<LoginScreen>{
                 foregroundColor: Colors.white,
                 alignment: Alignment.centerLeft,
                 ),
-              onPressed: _resetPassword, 
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ResetPasswordScreen()),), 
               child: const Text('Forgot Password?')),
 
             _isLoading? const Center(child: CircularProgressIndicator())
