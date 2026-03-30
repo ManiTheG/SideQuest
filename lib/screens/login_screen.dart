@@ -192,7 +192,7 @@ class _LoginScreenState extends State<LoginScreen>{
                 elevation: 4,
                 shadowColor: Color(0xFF6C63FF).withValues(alpha: 0.4)
               ),
-              child: const Text('Login', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              child: const Text('Login', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ),
 
             //tekstualni gumb za promjenu na singup screen

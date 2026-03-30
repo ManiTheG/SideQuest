@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:sidequest/screens/resetPassword_screen.dart';
+import 'package:sidequest/screens/signup_screen.dart';
+import '../services/auth_service.dart';
 
 class HomeScreen extends StatefulWidget{
   const HomeScreen({super.key});
@@ -7,12 +10,40 @@ class HomeScreen extends StatefulWidget{
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
+
 class _HomeScreenState extends State<HomeScreen>{
+  final AuthService _authService = AuthService();
+  bool _isLoading = false;
+  String? _errorMessage;
+
+
+  Future<void> _logout() async {
+  try{
+      await _authService.logout();
+    }
+    catch(e){
+      setState(() => _errorMessage = e.toString());
+    }finally{
+      setState(() => _isLoading = false);
+    }
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Home")),
-      body: const Center(child: Text("Welcome to SideQuest!")),
+      body: Container(
+      child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+              TextButton(
+                onPressed: _logout,
+                child: const Text('Logout'),
+                ),
+          ],
+      ),
+      ),
     );
   }
 

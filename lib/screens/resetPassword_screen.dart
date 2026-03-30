@@ -76,9 +76,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>{
                 ),
               ),
 
+            Spacer(),
 
              TextField(
               controller: _emailController,
+              style: TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 labelText: 'Email',
                 labelStyle: TextStyle(color: Colors.white60),
@@ -92,8 +94,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>{
               keyboardType: TextInputType.emailAddress,
             ),
             
-            const SizedBox(height: 16),
-            
+              const SizedBox(height: 16),
+
             _isLoading? const Center(child: CircularProgressIndicator())
             //gumb za poziv login funkcije
             : ElevatedButton(
@@ -102,6 +104,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>{
                  _resetPassword();
                  },
                 style: ElevatedButton.styleFrom(
+                  alignment: Alignment.center,
                   backgroundColor: Color.fromARGB(255, 16, 103, 234),
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(vertical: 16),
@@ -110,8 +113,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>{
                   ),
                   elevation: 4,
                   shadowColor: Color(0xFF6C63FF).withValues(alpha: 0.4)
-              ),
-               child: const Text('Send password reset email.')),
+                ),
+               child: const Text('Reset password', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))
+               ),
             Spacer(),
             Spacer()
           ],
