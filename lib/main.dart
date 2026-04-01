@@ -221,10 +221,9 @@ class _MyHomePageState extends State<MyHomePage> {
         currentIndex: _currentIndex,
         onTap: (index) {
           if (index == 2) {
-            // open profile page
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage()));
-            return;
-          }
+  Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage.preset()));
+      return;
+}
           // switch selected tab for other indices (optional behavior)
           setState(() {
             _currentIndex = index;
