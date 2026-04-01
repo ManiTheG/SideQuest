@@ -18,7 +18,7 @@ class Post {
   });
 }
 
-final List<String> _interesi = ["interes1", "interes2", "interes3", "interes4", "novo", "zanimljivo", "popularno", "tehnologija", "putovanja", "hrana", "fitness"];
+final List<String> _interesi = ["interes", "interes2", "interes3", "interes4", "novo", "zanimljivo", "popularno", "tehnologija", "putovanja", "hrana", "fitness"];
 
 final List<Post> _posts = [
   Post(
