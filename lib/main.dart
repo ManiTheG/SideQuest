@@ -18,7 +18,7 @@ class Post {
   });
 }
 
-final List<String> _interesi = ["interes1", "interes2", "interes3", "interes4", "novo"];
+final List<String> _interesi = ["interes1", "interes2", "interes3", "interes4", "novo", "zanimljivo", "popularno", "tehnologija", "putovanja", "hrana", "fitness"];
 
 final List<Post> _posts = [
   Post(
@@ -127,32 +127,40 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.teal,
-      appBar: AppBar(title: const Text("Hello")),
+      appBar: AppBar(title: const Text("Home")),
       body: SafeArea(
         child: Column(
           children: [
             // Interests row (wrap)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _interesi.map((interest) {
-                  final isSelected = _selectedInterests.contains(interest);
-                  return FilterChip(
-                    label: Text(
-                      interest,
-                      style: TextStyle(color: isSelected ? Colors.white : Colors.white70),
-                    ),
-                    selected: isSelected,
-                    onSelected: (_) => _selectToggle(interest),
-                    backgroundColor: const Color.fromARGB(255, 55, 73, 87),
-                    selectedColor: const Color.fromARGB(255, 16, 103, 234),
-                    checkmarkColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    showCheckmark: false,
-                  );
-                }).toList(),
+              child: SizedBox(
+                height: 48,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  child: Row(
+                    children: _interesi.map((interest) {
+                      final isSelected = _selectedInterests.contains(interest);
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: FilterChip(
+                          label: Text(
+                            interest,
+                            style: TextStyle(color: isSelected ? Colors.white : Colors.white70),
+                          ),
+                          selected: isSelected,
+                          onSelected: (_) => _selectToggle(interest),
+                          backgroundColor: const Color.fromARGB(255, 55, 73, 87),
+                          selectedColor: const Color.fromARGB(255, 16, 103, 234),
+                          checkmarkColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          showCheckmark: false,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
               ),
             ),
 
