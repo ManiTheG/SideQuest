@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'widget/bottom.dart';
 
 class ProfilePage extends StatefulWidget {
   final String userName;
@@ -45,6 +46,12 @@ class ProfilePage extends StatefulWidget {
             'autor': 'Slađana B.',
             'interesi': ['Archery', 'Fitness'],
           },
+          {
+            'naslov': 'Novi trik za zagonetke',
+            'opis': 'Kratki vodič s nekoliko brzih trikova za rješavanje logičkih zagonetki.',
+            'autor': 'Slađana B.',
+            'interesi': ['Puzzles'],
+          },
         ];
 
   @override
@@ -53,29 +60,6 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   int _currentIndex = 2;
-
-  void _onTap(int index) {
-    if (index == 0) {
-      if (Navigator.canPop(context)) {
-        Navigator.pop(context);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Home nije dostupan za povratak')),
-        );
-      }
-      return;
-    }
-
-    if (index == 1) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Search nije implementiran')),
-      );
-      setState(() => _currentIndex = index);
-      return;
-    }
-
-    setState(() => _currentIndex = index);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -152,20 +136,31 @@ class _ProfilePageState extends State<ProfilePage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _buildStatColumn(posts.length.toString(), 'Posts'),
-                        _buildStatColumn('12', 'Responses'),
-                        _buildStatColumn('15', 'Connections'),
+                        _buildStatColumn(ProfilePage.preset().userPosts.length.toString(), 'Posts'),
                       ],
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
 
               // lista interesa
-              const Text('Your Interests', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
+               Row(
+                children: [
+                  const Text('Your Interests', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  const SizedBox(width: 8),
+                  const Spacer(),
+                  GestureDetector(
+                    child: const CircleAvatar(
+                      radius: 14,
+                      backgroundColor: Colors.blueAccent,
+                      child: Icon(Icons.add, size: 18, color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 8),
               SizedBox(
                 height: 44,
                 child: ListView.separated(
@@ -189,8 +184,20 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 16),
 
               // lista postova
-              const Text('Your Posts', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Text('Your Posts', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  const SizedBox(width: 8),
+                  const Spacer(),
+                  GestureDetector(
+                    child: const CircleAvatar(
+                      radius: 14,
+                      backgroundColor: Colors.blueAccent,
+                      child: Icon(Icons.add, size: 18, color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),              const SizedBox(height: 8),
               if (posts.isEmpty)
               // prikaz kada nema postova
                 Card(
@@ -207,7 +214,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Create post')));
                           },
-                          child: const Text('Create Your First Post'),
+                          child: Text('Create Your First Post'),
                         ),
                       ],
                     ),
@@ -254,22 +261,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   }).toList(),
                 ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: _onTap,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
-        ],
-      ),
+      // bottom navigation bar
+      bottomNavigationBar: const SharedBottomNavigationBar(currentIndex: 2),
     );
   }
 

@@ -2,6 +2,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:flutter/material.dart';
+import 'widget/bottom.dart';
+import 'search.dart';
 import 'profile.dart';
 
 class Post {
@@ -90,7 +92,12 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: false,
       ),
-      home: const MyHomePage(title: 'Mc2 Home'),
+      initialRoute: '/home',
+      routes: {
+        '/home': (ctx) => const MyHomePage(title: 'Mc2 Home'),
+        '/search': (ctx) => const SearchPage(),
+        '/profile': (ctx) => const ProfilePage.preset(),
+      },
     );
   }
 }
@@ -131,7 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: SafeArea(
         child: Column(
           children: [
-            // Interests row (wrap)
+            // tvoji interesi
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
               child: SizedBox(
@@ -164,7 +171,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
 
-            // Posts below
+            // Postovi
             Expanded(
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -217,33 +224,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       //bottom navigation bar
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          if (index == 2) {
-  Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage.preset()));
-      return;
-}
-          // switch selected tab for other indices (optional behavior)
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-      ),
+      bottomNavigationBar: const SharedBottomNavigationBar(currentIndex: 0),
     );
   }
 }
