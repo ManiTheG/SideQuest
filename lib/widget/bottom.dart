@@ -8,7 +8,13 @@ class SharedBottomNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final routes = ['/home', '/search', '/profile'];
     return BottomNavigationBar(
+      backgroundColor: Color.fromARGB(255, 25, 36, 54),
+      selectedItemColor: Color.fromARGB(255, 16, 103, 234),
+      unselectedItemColor: Colors.white38,
       currentIndex: currentIndex,
+      iconSize: 32, // <-- larger icons
+      showSelectedLabels: false, // <-- hide labels
+      showUnselectedLabels: false,
       onTap: (index) {
         final target = routes[index];
         final current = ModalRoute.of(context)?.settings.name;
@@ -16,9 +22,9 @@ class SharedBottomNavigationBar extends StatelessWidget {
         Navigator.pushReplacementNamed(context, target);
       },
       items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-        BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
+        BottomNavigationBarItem(icon: Icon(Icons.search), label: ''),
+        BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
       ],
     );
   }
