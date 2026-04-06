@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:sidequest/screens/home_screen.dart';
+import 'package:password_strength_checker/password_strength_checker.dart';
+
 import 'package:sidequest/services/auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
@@ -19,6 +21,7 @@ class _SignupScreenState extends State<SignupScreen>{
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final AuthService _authService = AuthService();
+  final passNotifier = ValueNotifier<PasswordStrength?>(null);
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -52,20 +55,18 @@ class _SignupScreenState extends State<SignupScreen>{
 
   Future<void> _signUp () async{
 
-     print('=== STEP 1: Starting signup ===');
-
     if(_userNameController.text.isEmpty || _emailController.text.isEmpty
      || _passwordController.text.isEmpty || _confirmPasswordController.text.isEmpty){
         setState (() => _errorMessage = 'All field must me filled to continue');
         return;
      }
 
-    //bool isValidEmail = .hasMatch(_emailController.te);
-
-     if(!(_emailController.text.contains(RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")))){
-      setState(()=> _errorMessage = 'Not a valit email');
+  
+    if (!EmailValidator.validate(_emailController.text)) {
+      setState(() => _errorMessage = 'Please enter a valid email address.');
+      _emailController.clear();
       return;
-     }
+    }
 
      if(!(_passwordController.text ==_confirmPasswordController.text)){
       setState(()=> _errorMessage = 'Passwords do not match!');
@@ -97,13 +98,9 @@ class _SignupScreenState extends State<SignupScreen>{
     try{
       UserCredential userCred = await _authService.signUp(
         _emailController.text,
-        _passwordController.text
+        _passwordController.text,
         );
-
-        print('=== STEP 2: Auth success, UID: ${userCred.user!.uid} ===');
-        print('=== STEP 3: User is null? ${userCred.user == null} ===');
-        print('=== STEP 4: Starting Firestore write ===');
-
+              
       try{
       await firestoreSideQuest.collection('users').doc(userCred.user!.uid).set(
         {
@@ -111,10 +108,10 @@ class _SignupScreenState extends State<SignupScreen>{
           'email': _emailController.text.trim(),
           'interests': _userInterests,
           'created': FieldValue.serverTimestamp(),
-        }).timeout( Duration(seconds: 10 ), onTimeout: ()=> throw Exception('Request timed out. please try again'));
-         print('=== STEP 5: Firestore write SUCCESS ===');
+        },
+        //userCred.displayName = _userNameController.text.trim()
+        ).timeout( Duration(seconds: 10 ), onTimeout: ()=> throw Exception('Request timed out. please try again'));
       }catch(e){
-         print('=== FIRESTORE ERROR: $e ===');
         await userCred.user?.delete();
         setState(() => _errorMessage = 'Failed to save user data');
       }
@@ -124,10 +121,8 @@ class _SignupScreenState extends State<SignupScreen>{
       }
 
     }catch(e){
-      print('=== AUTH ERROR: $e ===');
       setState(()=> _errorMessage = e.toString());
     }finally{
-      print('==== STEP 6: Signup process complete, isLoading false ===');
       setState(() => _isLoading = false);
     }
 
@@ -215,7 +210,7 @@ class _SignupScreenState extends State<SignupScreen>{
               //loinka/zaporka
         
               //lozinka
-              TextField(
+            /*  TextField(
                 controller: _passwordController,
                 style: TextStyle(color: Colors.white),
                 decoration: InputDecoration(
@@ -229,15 +224,15 @@ class _SignupScreenState extends State<SignupScreen>{
                     ),
                 ),
                 obscureText: true,
-              ),
+                onChanged: (value){ passNotifier.value = PasswordStrength.calculate(text: _passwordController.text);},
+              ),*/
               const SizedBox(height: 16),
-        
-              //ponavljanje lozinke
+
               TextField(
                 controller: _confirmPasswordController,
                 style: TextStyle(color: Colors.white),
                 decoration:  InputDecoration(
-                  labelText: 'Please confim password',
+                  labelText: 'Confirm password',
                   labelStyle: TextStyle(color: Colors.white60),
                   filled: true,
                   fillColor: Color.fromARGB(255, 55, 73, 87),
@@ -249,6 +244,12 @@ class _SignupScreenState extends State<SignupScreen>{
                 obscureText: true,
               ),
               const SizedBox(height: 12),
+              
+              /*PasswordStrengthFormChecker(
+                minimumStrengthRequired: PasswordStrength.strong,
+                onChanged: (_passwordController.text, passNotifier){passNotifier.value = PasswordStrength.calculate(text: _passwordController.text);},
+                
+                ),*/
 
               AnimatedSize(
                 duration: Duration(milliseconds: 300),
@@ -278,8 +279,7 @@ class _SignupScreenState extends State<SignupScreen>{
               const SizedBox(height: 12),
 
               //lista hobbija
-              const Text('Select your interests:',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+              const Text('Select your interests:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
               ),
               const SizedBox(height:16),
         
@@ -337,5 +337,5 @@ class _SignupScreenState extends State<SignupScreen>{
       )
     );
   }
-
 }
+

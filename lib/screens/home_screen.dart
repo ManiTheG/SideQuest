@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sidequest/screens/resetPassword_screen.dart';
-import 'package:sidequest/screens/signup_screen.dart';
 import '../services/auth_service.dart';
 
 class HomeScreen extends StatefulWidget{
