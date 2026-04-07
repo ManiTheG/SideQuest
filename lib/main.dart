@@ -1,9 +1,15 @@
-import 'package:flutter/material.dart';
+// ...existing code...
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'services/firebase_options.dart';
 import 'package:sidequest/screens/login_screen.dart';
 import 'package:sidequest/screens/home_screen.dart';
+import 'package:flutter/material.dart';
+import 'widget/bottom.dart';
+import 'search.dart';
+import 'profile.dart';
+import 'home_screen.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
