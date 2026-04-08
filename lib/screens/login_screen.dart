@@ -32,13 +32,13 @@ class _LoginScreenState extends State<LoginScreen>{
       setState(() => _errorMessage = 'Please enter email and password to proceed.');
       _emailController.clear();
       _passwordController.clear();
-      return;
+      //return;
     }
 
     if (!EmailValidator.validate(_emailController.text)) {
       setState(() => _errorMessage = 'Please enter a valid email address.');
       _emailController.clear();
-      return;
+      //return;
     }
 
     setState(() {
@@ -50,9 +50,9 @@ class _LoginScreenState extends State<LoginScreen>{
       await _authService.login(_emailController.text, _passwordController.text);
     }
     catch(e){
-      setState(() => _errorMessage = e.toString());
+      if(mounted){setState(() => _errorMessage = e.toString());}
     }finally{
-      setState(() => _isLoading = false);
+      if(mounted){setState(() => _isLoading = false);}
     }
 
   }
