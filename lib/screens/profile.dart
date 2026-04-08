@@ -1,5 +1,6 @@
+import '../services/auth_service.dart';
 import 'package:flutter/material.dart';
-import 'widget/bottom.dart';
+import '../widget/bottom.dart';
 
 class ProfilePage extends StatefulWidget {
   final String userName;
@@ -60,6 +61,20 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   int _currentIndex = 2;
+  final AuthService _authService = AuthService();
+  bool _isLoading = false;
+  String? _errorMessage;
+
+
+    Future<void> _logout() async {
+  try{
+      await _authService.logout();
+      Navigator.of(context).pushNamedAndRemoveUntil('/', (route)=>false);
+      }
+    catch(e){
+      setState(() => _errorMessage = e.toString());
+    }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -85,6 +100,7 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              TextButton(onPressed: _logout, child: const Text('Logout')),
               // glavni profil kartica
               Container(
                 width: double.infinity,
@@ -100,7 +116,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       children: [
                         const CircleAvatar(
                           radius: 36,
-                          backgroundImage: NetworkImage('https://via.placeholder.com/150'),
+                         // backgroundImage: NetworkImage('https://via.placeholder.com/150'),
                         ),
                         const SizedBox(width: 12),
                         Expanded(

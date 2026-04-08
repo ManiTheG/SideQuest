@@ -1,6 +1,6 @@
 //make a basic search page with a search bar and a list of results
 import 'package:flutter/material.dart';
-import 'widget/bottom.dart';
+import '../widget/bottom.dart';
 
 class SearchPage extends StatelessWidget {
   const SearchPage({Key? key}) : super(key: key);
