@@ -1,11 +1,14 @@
 // ...existing code...
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'services/firebase_options.dart';
+import 'package:sidequest/screens/login_screen.dart';
+import 'package:sidequest/screens/home_screen.dart';
 import 'package:flutter/material.dart';
-import 'widget/bottom.dart';
-import 'search.dart';
-import 'profile.dart';
-import 'home_screen.dart';
+import 'screens/search.dart';
+import 'screens/profile.dart';
+
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -16,21 +19,42 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
+  
+  @override 
+  Widget build(BuildContext context){
     return MaterialApp(
-      title: 'Mc2',
+      debugShowCheckedModeBanner: false, 
+      title: 'SideQuest',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: false,
+                colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+                useMaterial3: false,
+              ),
+      home: StreamBuilder <User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot){
+          if(snapshot.connectionState == ConnectionState.waiting){
+            return const CircularProgressIndicator();
+          }
+          if(snapshot.hasData){
+            return const HomeScreen(title: 'Mc2 Home');
+          }
+          return const LoginScreen();
+        },
       ),
-      initialRoute: '/home',
       routes: {
-        '/home': (ctx) => const MyHomePage(title: 'Mc2 Home'),
-        '/search': (ctx) => const SearchPage(),
-        '/profile': (ctx) => const ProfilePage.preset(),
-      },
+                '/home': (ctx) => const HomeScreen(title: 'SideQuest Home'),
+                '/search': (ctx) => const SearchPage(),
+                '/profile': (ctx) => const ProfilePage.preset(),
+            },
     );
   }
-}
+  }
+
+
+  /*citanje iz baze:
+  final doc = await FirebaseFirestore.instance
+    .collection('users')
+    .doc(uid)
+    .get();
+
+List<String> interests = List<String>.from(doc['interests']);@*/
