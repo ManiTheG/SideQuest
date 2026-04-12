@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -50,6 +49,7 @@ class AuthService {
   //fnkcija za logout/sign out
   Future<void> logout() async {
     await _auth.signOut();
+    await Future.delayed(const Duration(milliseconds: 500));
   }
 
   //resetiranje lozinke. Pokušava poslati email za resetiranje lozinke, ako ne uspije baca error

@@ -1,4 +1,4 @@
-import '../services/auth_service.dart';
+import 'package:sidequest/services/db_read_service.dart';
 import 'package:flutter/material.dart';
 import '../widget/bottom.dart';
 
@@ -16,8 +16,6 @@ class Post {
     required this.interesi,
   });
 }
-
-final List<String> _interesi = ["interes1", "interes2", "interes3", "interes4", "novo", "zanimljivo", "popularno", "tehnologija", "putovanja", "hrana", "fitness"];
 
 final List<Post> _posts = [
   Post(
@@ -82,8 +80,17 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
+  final InterestsService _interestsService = InterestsService();
 
+  List<String> _allInterests =[];
   final List<String> _selectedInterests = [];
+
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAllInterests();
+  }
 
   void _selectToggle(String interest) {
     setState(() {
@@ -95,11 +102,19 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Future<void> _loadAllInterests() async{
+    final interests = await _interestsService.loadAllInterests();
+   
+    setState(() => _allInterests = interests);
+  }
+
 
   List<Post> get _filteredPosts {
     if (_selectedInterests.isEmpty) return _posts;
     return _posts.where((p) => p.interesi.any((i) => _selectedInterests.contains(i))).toList();
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       scrollDirection: Axis.horizontal,
                       physics: const BouncingScrollPhysics(),
                       child: Row(
-                        children: _interesi.map((interest) {
+                        children: _allInterests.map((interest) {
                           final isSelected = _selectedInterests.contains(interest);
                           return Padding(
                             padding: const EdgeInsets.only(right: 8.0),
