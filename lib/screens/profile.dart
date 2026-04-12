@@ -1,4 +1,7 @@
+import 'package:sidequest/screens/login_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
+import '../services/db_read_service.dart';
 import 'package:flutter/material.dart';
 import '../widget/bottom.dart';
 
@@ -21,7 +24,7 @@ class ProfilePage extends StatefulWidget {
   const ProfilePage.preset({super.key})
       : userName = 'Slađana B.',
         userBio = 'Puzzle Master',
-        userInterests = const ['Puzzles', 'D&D', 'Archery', 'Putovanja', 'Tehnologija'],
+        userInterests = const [],
         userPosts = const [
           {
             'naslov': 'Prvo rješenje zagonetke',
@@ -62,19 +65,36 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   int _currentIndex = 2;
   final AuthService _authService = AuthService();
+  final InterestsService _interestsService = InterestsService();
   bool _isLoading = false;
   String? _errorMessage;
 
+  List<String> _userInterests = [];
 
-    Future<void> _logout() async {
-  try{
-      await _authService.logout();
-      Navigator.of(context).pushNamedAndRemoveUntil('/', (route)=>false);
-      }
-    catch(e){
-      setState(() => _errorMessage = e.toString());
-    }
-}
+  
+  @override
+  void initState() {
+    super.initState();
+    _loadUserInterests();
+    print(_userInterests);
+  }
+
+  Future<void> _loadUserInterests() async{
+    final interests = await _interestsService.loadUserInterests();
+   
+    setState(() => _userInterests = interests);
+  }
+
+  Future<void> _logout() async {
+
+    await FirebaseAuth.instance.signOut();
+    if (mounted) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );}
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +120,8 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextButton(onPressed: _logout, child: const Text('Logout')),
+              TextButton(onPressed:_logout, 
+              child: const Text('Logout')),
               // glavni profil kartica
               Container(
                 width: double.infinity,
@@ -182,10 +203,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
-                  itemCount: widget.userInterests.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  itemCount: _userInterests.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: 8),
                   itemBuilder: (context, i) {
-                    final interest = widget.userInterests[i];
+                    final interest = _userInterests[i];
                     return FilterChip(
                       label: Text(interest),
                       selected: false,

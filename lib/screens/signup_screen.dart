@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:sidequest/services/auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:sidequest/services/colors.dart';
+import 'package:sidequest/services/color_service.dart';
+import 'package:sidequest/services/db_read_service.dart';
 import 'dart:async';
 
 class SignupScreen extends StatefulWidget{
@@ -20,18 +22,30 @@ class _SignupScreenState extends State<SignupScreen>{
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final AuthService _authService = AuthService();
+  final InterestsService _interestsService = InterestsService();
+  //final InterestsServices _interestsService = InterestsServices();
   double _passStrength = 0;
   bool _isLoading = false;
   String? _errorMessage;
 
   //lista će zasad biti definirana ovdje
 
-  final List<String> _allInterests = 
-  ['plaseholder1','plaseholder2','plaseholder3',
-  'plaseholder4','plaseholder5','plaseholder6'];
+  List<String> _allInterests = [];
 
 //odair korisnika barem jedan mora biti
   final List<String> _userInterests = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAllInterests();
+  }
+
+  Future<void> _loadAllInterests() async{
+    final interests = await _interestsService.loadAllInterests();
+   
+    setState(() => _allInterests = interests);
+  }
 
   @override
   void dispose(){
@@ -54,10 +68,10 @@ class _SignupScreenState extends State<SignupScreen>{
 
   bool _passValidation(String password){
     String pass = password.trim();
-    if(pass.isEmpty) setState(() =>  _passStrength = 0);
-    else if(pass.length < 6) setState(() =>  _passStrength = 1/4);
-    else if(pass.length < 12) setState(() =>  _passStrength = 2/4);
-    else if(pass.length < 15) setState(() =>  _passStrength = 3/4);
+    if(pass.isEmpty){ setState(() =>  _passStrength = 0);}
+    else if(pass.length < 6) {setState(() =>  _passStrength = 1/5);}
+    else if(pass.length < 12) {setState(() =>  _passStrength = 2/4);}
+    else if(pass.length < 15) {setState(() =>  _passStrength = 3/4);}
     else {
       if((RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*["$&+,:;=?@#|<>.^*()%!-]).*$')).hasMatch(pass)){
         setState(() =>  _passStrength = 1);
@@ -70,6 +84,8 @@ class _SignupScreenState extends State<SignupScreen>{
     }
     return false;
   }
+
+
 
   Future<void> _signUp () async{
 
@@ -150,7 +166,6 @@ class _SignupScreenState extends State<SignupScreen>{
 
   }
 
-
   @override
   Widget build(BuildContext context) {
     
@@ -200,6 +215,7 @@ class _SignupScreenState extends State<SignupScreen>{
               //koisnicko ime
               TextField(
                 controller: _userNameController,
+                inputFormatters: [LengthLimitingTextInputFormatter(64)],
                 style: TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   labelText: 'Username',
@@ -217,6 +233,7 @@ class _SignupScreenState extends State<SignupScreen>{
               //email
               TextField(
                 controller: _emailController,
+                inputFormatters: [LengthLimitingTextInputFormatter(254)],
                 style: TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   labelText: 'Email',
@@ -237,6 +254,7 @@ class _SignupScreenState extends State<SignupScreen>{
 
               TextFormField(
                   controller: _passwordController,
+                  inputFormatters: [LengthLimitingTextInputFormatter(128)],
                   style: TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     errorStyle: TextStyle(height: 0),
@@ -267,6 +285,7 @@ class _SignupScreenState extends State<SignupScreen>{
 
               TextField(
                 controller: _confirmPasswordController,
+                inputFormatters: [LengthLimitingTextInputFormatter(128)],
                 style: TextStyle(color: Colors.white),
                 decoration:  InputDecoration(
                   labelText: 'Confirm password',
