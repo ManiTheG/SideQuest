@@ -134,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: _filteredPosts.isEmpty
                     ? const Center(
                         child: Text(
-                          'Nema postova za odabrane interese',
+                          'Currently no available post for chosen interests',
                           style: TextStyle(color: Colors.white),
                         ),
                       )

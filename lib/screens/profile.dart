@@ -1,9 +1,9 @@
 import 'package:sidequest/screens/login_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 import '../services/db_read_service.dart';
 import 'package:flutter/material.dart';
 import '../widget/bottom.dart';
+import '../services/color_service.dart';
 
 class ProfilePage extends StatefulWidget {
   final String userName;
@@ -11,6 +11,7 @@ class ProfilePage extends StatefulWidget {
   final List<String> userInterests;
   // List of maps with keys: 'naslov','opis','autor','interesi'
   final List<Map<String, dynamic>> userPosts;
+  
 
   const ProfilePage({
     super.key,
@@ -33,23 +34,27 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   int _currentIndex = 2;
-  //final AuthService _authService = AuthService();
+  final AuthService _authService = AuthService();
   final InterestsService _interestsService = InterestsService();
   final postsService _postsService = postsService();
 
   List<String> _userInterests = [];
   List<Map<String, dynamic>> _userPosts = [];
 
+  final TextEditingController _newTitleController = TextEditingController();
+  final TextEditingController _newOpisController = TextEditingController();
+  final List<String> _newPostInterests = [];
 
   
-  @override
+ @override
   void initState() {
     super.initState();
     _loadUserInterests();
     _loadUserPosts();
   }
 
-    Future<void> _loadUserPosts() async{
+
+  Future<void> _loadUserPosts() async{
     final posts = await _postsService.loadUserPosts();
 
     setState(() => _userPosts = posts);
@@ -61,24 +66,200 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() => _userInterests = interests);
   }
 
-  Future<void> _logout() async {
 
-    await FirebaseAuth.instance.signOut();
+  void _openNewPostSheet() {
+  _newPostInterests.clear(); // clear before opening
+  _newTitleController.clear();
+  _newOpisController.clear();
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true, // allows it to grow with keyboard
+    backgroundColor: AppColors.secondary,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (context) {
+      return StatefulBuilder( 
+        builder: (context, setSheetState) {
+          return Padding(
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 
+              MediaQuery.of(context).viewInsets.bottom + 16), // moves up with keyboard
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text('New Post', style: TextStyle(
+                  color: AppColors.textColor,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                )),
+                const SizedBox(height: 16),
+
+                // title field
+                TextField(
+                  controller: _newTitleController,
+                  style: TextStyle(color: AppColors.textColor),
+                  decoration: InputDecoration(
+                    labelText: 'Title',
+                    labelStyle: TextStyle(color: AppColors.textColorOpis),
+                    filled: true,
+                    fillColor: AppColors.selectButtonColor,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // post body field
+                TextField(
+                  controller: _newOpisController,
+                  style: TextStyle(color: AppColors.textColor),
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    labelText: 'Write your post...',
+                    labelStyle: TextStyle(color: AppColors.textColorOpis),
+                    filled: true,
+                    fillColor: AppColors.selectButtonColor,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // tags
+                Text('Tags', style: TextStyle(color: AppColors.textColorOpis)),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: _userInterests.map((interest) {
+                    final isSelected = _newPostInterests.contains(interest);
+                    return FilterChip(
+                      label: Text(interest, style: TextStyle(
+                        color: isSelected ? AppColors.textColor : AppColors.textColorOpis,
+                      )),
+                      selected: isSelected,
+                      onSelected: (_) {
+                        setSheetState(() { 
+                          if (isSelected) {
+                            _newPostInterests.remove(interest);
+                          } else {
+                            _newPostInterests.add(interest);
+                          }
+                        });
+                      },
+                      backgroundColor: AppColors.selectButtonColor,
+                      selectedColor: AppColors.buttonColor,
+                      showCheckmark: false,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 16),
+
+                // submit button
+                ElevatedButton(
+                  onPressed: () {
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.buttonColor,
+                    foregroundColor: AppColors.textColor,
+                    padding: EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: Text('Post'),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  ).whenComplete(() {
+    setState(() {
+      _newTitleController.clear();
+      _newOpisController.clear();
+      _newPostInterests.clear();
+    });
+    });
+}
+
+  Future<void> _logout() async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      backgroundColor: AppColors.secondary,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      title: const Text(
+        'Logout',
+        style: TextStyle(color: AppColors.textColor, fontWeight: FontWeight.bold),
+      ),
+      content: const Text(
+        'Are you sure you want to logout?',
+        style: TextStyle(color: AppColors.textColorOpis),
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.buttonColor,
+            foregroundColor: AppColors.textColor,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),
+            ),
+          ),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),
+            ),
+          ),
+          child: const Text('Logout'),
+        ),
+      ],
+    ),
+  );
+
+  if (confirmed == true) {
+    await _authService.logout();
     if (mounted) {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const LoginScreen()),
         (route) => false,
       );}
   }
+}
 
 
   @override
   Widget build(BuildContext context) {
-   // final posts = widget.userPosts;
     return Scaffold(
+      backgroundColor: AppColors.primaryBackground,
       appBar: AppBar(
+        backgroundColor: AppColors.secondary,
         automaticallyImplyLeading: false,
-        title: const Text('Profile'),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(12)),
+        ),
+        title: const Text('Profile', style: TextStyle(
+                  color: AppColors.textColor,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                )),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -96,14 +277,12 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextButton(onPressed:_logout, 
-              child: const Text('Logout')),
               // glavni profil kartica
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.blue.shade700,
+                  color: AppColors.secondary,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -113,7 +292,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       children: [
                         const CircleAvatar(
                           radius: 36,
-                         // backgroundImage: NetworkImage('https://via.placeholder.com/150'),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -122,34 +300,49 @@ class _ProfilePageState extends State<ProfilePage> {
                             children: [
                               Text(
                                 widget.userName,
-                                style: const TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
+                                style: const TextStyle(fontSize: 18, color: AppColors.textColor, fontWeight: FontWeight.bold),
                               ),
                               if (widget.userBio != null && widget.userBio!.isNotEmpty)
                                 Padding(
                                   padding: const EdgeInsets.only(top: 4),
-                                  child: Text(widget.userBio!, style: const TextStyle(color: Colors.white70)),
+                                  child: Text(widget.userBio!, style: const TextStyle(color: AppColors.textColorOpis)),
                                 ),
                             ],
                           ),
                         ),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Edit profile')));
-                          },
-                          icon: const Icon(Icons.edit, size: 18),
-                          label: const Text('Edit'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.lightBlueAccent,
-                          ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Edit profile')));
+                              },
+                              icon: const Icon(Icons.edit, size: 18),
+                              label: const Text('Edit'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.buttonColor,
+                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            ElevatedButton(
+                              onPressed: _logout,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.danger,
+                                foregroundColor: AppColors.textColor,
+                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: const Text('Logout', style: TextStyle(fontSize: 14)),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    // stats row
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildStatColumn(ProfilePage.preset().userPosts.length.toString(), 'Posts'),
                       ],
                     ),
                   ],
@@ -158,121 +351,175 @@ class _ProfilePageState extends State<ProfilePage> {
 
               SizedBox(height: 16),
 
-              // lista interesa
-               Row(
-                children: [
-                  const Text('Your Interests', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  const SizedBox(width: 8),
-                  const Spacer(),
-                  GestureDetector(
-                    child: const CircleAvatar(
-                      radius: 14,
-                      backgroundColor: Colors.blueAccent,
-                      child: Icon(Icons.add, size: 18, color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 8),
-              SizedBox(
-                height: 44,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: _userInterests.length,
-                  separatorBuilder: (_, _) => const SizedBox(width: 8),
-                  itemBuilder: (context, i) {
-                    final interest = _userInterests[i];
-                    return FilterChip(
-                      label: Text(interest),
-                      selected: false,
-                      onSelected: (_) {},
-                      backgroundColor: Colors.grey.shade300,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    );
-                  },
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.secondary,
+                  borderRadius: BorderRadius.circular(16),
                 ),
-              ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [// lista interesa
+                    Row(
+                        children: [
+                          const Text('Your interests', style: TextStyle(color: AppColors.textColorAutor, fontSize: 20, fontWeight: FontWeight.bold)),
+                          const SizedBox(width: 8),
+                          const Spacer(),
+                          ElevatedButton(
+                            onPressed: () {},
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.buttonColor,
+                              minimumSize: Size.zero,
+                              padding: const EdgeInsets.all(8),
+                              shape: const CircleBorder(),
+                              elevation: 0,
+                            ),
+                            child: const Icon(Icons.add, size: 18, color: AppColors.textColor),
+                          ),
+                        ],
+                      ),
+                    SizedBox(height: 8),
+                    SizedBox(
+                      height: 44,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: _userInterests.length,
+                        separatorBuilder: (_, _) => const SizedBox(width: 8),
+                        itemBuilder: (context, i) {
+                          final interest = _userInterests[i];
+                          return FilterChip(
+                            label: Text(interest, style: TextStyle(color: AppColors.textColor),),
+                            selected: false,
+                            onSelected: (_) {},
+                            backgroundColor: AppColors.buttonColor,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          );
+                        },
+                      ),
+                    ),
+                        ],
+                  ),
+                ),
 
               const SizedBox(height: 16),
 
               // lista postova
-              Row(
-                children: [
-                  const Text('Your Posts', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  const SizedBox(width: 8),
-                  const Spacer(),
-                  GestureDetector(
-                    child: const CircleAvatar(
-                      radius: 14,
-                      backgroundColor: Colors.blueAccent,
-                      child: Icon(Icons.add, size: 18, color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),              const SizedBox(height: 8),
-              if (_userPosts.isEmpty)
-              // prikaz kada nema postova
-                Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        const Icon(Icons.insert_drive_file, size: 48, color: Colors.grey),
-                        const SizedBox(height: 8),
-                        const Text('No Posts yet', style: TextStyle(fontSize: 16)),
-                        const SizedBox(height: 12),
-                        ElevatedButton(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Create post')));
-                          },
-                          child: Text('Create Your First Post'),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              else
-              // prikaz postova ako ih ima
-                Column(
-                  children: _userPosts.map((p) {
-                    final naslov = p['title'] ?? '';
-                    final opis = p['description'] ?? '';
-                    final autor = p['authorId'] ?? '';
-                    final interesi = (p['interests'] as List<dynamic>? ?? []).cast<String>();
-                    return Container(
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: const [
-                          BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(2, 2)),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.secondary,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                      Row(
                         children: [
-                          Text(naslov, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 6),
-                          Text(opis),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Autor: $autor', style: const TextStyle(fontStyle: FontStyle.italic)),
-                              Wrap(
-                                spacing: 6,
-                                children: interesi.map((i) => Chip(label: Text(i))).toList(),
-                              ),
-                            ],
+                          const Text('Your Posts', style: TextStyle(color: AppColors.textColorAutor, fontSize: 20, fontWeight: FontWeight.bold)),
+                          const SizedBox(width: 8),
+                          const Spacer(),
+                          ElevatedButton(
+                            onPressed: _openNewPostSheet,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.buttonColor,
+                              minimumSize: Size.zero,
+                              padding: const EdgeInsets.all(8),
+                              shape: const CircleBorder(),
+                              elevation: 0,
+                            ),
+                            child: const Icon(Icons.add, size: 18, color: AppColors.textColor),
                           ),
                         ],
                       ),
-                    );
-                  }).toList(),
-                ),
+                      const SizedBox(height: 8),
+                      if (_userPosts.isEmpty)
+                      // prikaz kada nema postova
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: AppColors.profilePost,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.insert_drive_file, size: 48, color: AppColors.textColorAutor),
+                              const SizedBox(height: 8),
+                              const Text('No Posts yet', style: TextStyle(
+                                fontSize: 16,
+                                color: AppColors.textColor,
+                                fontWeight: FontWeight.bold,
+                              )),
+                              const SizedBox(height: 4),
+                              const Text('Share something with the community', style: TextStyle(
+                                fontSize: 13,
+                                color: AppColors.textColorOpis,
+                              )),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Create post')));
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.buttonColor,
+                                  foregroundColor: AppColors.textColor,
+                                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                                  elevation: 0,
+                                ),
+                                child: const Text('Create Your First Post'),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                      // prikaz postova ako ih ima
+                        Column(
+                          children: _userPosts.map((p) {
+                            final title = p['title'] ?? '';
+                            final description = p['description'] ?? '';
+                            final authorId = p['authorId'] ?? '';
+                            final interests = (p['interests'] as List<dynamic>? ?? []).cast<String>();
+                            return Container(
+                              margin: const EdgeInsets.symmetric(vertical: 8),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: AppColors.profilePost,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(title, style: const TextStyle(color: AppColors.textColor, fontSize: 18, fontWeight: FontWeight.bold)),
+                                  const SizedBox(height: 6),
+                                  Text(description, style: TextStyle(color: AppColors.textColor,)),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('Autor: $authorId', style: const TextStyle(color: AppColors.textColorAutor, fontStyle: FontStyle.italic)),
+                                      Wrap(
+                                        spacing: 6,
+                                        children: interests.map((i) => Chip(
+                                        label: Text(i, style: TextStyle(color: AppColors.textColor, fontSize: 12)),
+                                        backgroundColor: AppColors.buttonColor,
+                                        side: BorderSide.none,
+                                        padding: EdgeInsets.zero,
+                                      )).toList(),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                         ],
+                      ),
+                    ),
 
               SizedBox(height: 16),
             ],
