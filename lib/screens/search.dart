@@ -3,8 +3,6 @@ import '../widget/bottom.dart';
 
 List<Post> PrikazaniPostovi = [];
 
-bool SakrijInterese = false;
-
 List<String> InteresiZaPretragu = [
   'interes1',
   'interes2',
@@ -93,14 +91,12 @@ class _SearchPageState extends State<SearchPage> {
           .where((post) => post.interesi.contains(query))
           .toList();
     });
-    SakrijInterese = false;
   }
 
   @override
   void initState() {
     super.initState();
       PrikazaniPostovi = Postovi;
-      SakrijInterese = true;
   }
 
   @override
@@ -148,45 +144,7 @@ class _SearchPageState extends State<SearchPage> {
         body: SafeArea(
         top: false,
         child: Column(
-          children: [
-            // tvoji interesi
-            Visibility(
-            visible: SakrijInterese,
-            child: Flexible(
-                fit: FlexFit.loose,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Divider(
-                      color: Colors.grey,
-                      thickness: 1,
-                    ),
-                    Text(
-                      'Intresi',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      
-                    ),
-                    Divider(
-                      color: Colors.grey,
-                      thickness: 1,
-                    ),
-                    ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: 3,
-                        itemBuilder: (context, index) {
-                          final interest = InteresiZaPretragu[index];
-                          return ListTile(
-                            title: Text(interest),
-                          );
-                        },
-                      ),
-                  ],
-                ),
-            ),
-              ),
-
+          children: [      
             // Postovi
             Divider(
               color: Colors.grey,
