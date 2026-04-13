@@ -10,6 +10,7 @@ class AppColors {
   static const buttonColor = Color.fromARGB(255, 16, 103, 234);
   static const selectButtonColor = Color.fromARGB(255, 55, 73, 87);
   static const unselectButtonColor = Colors.white38;
+  static const danger = Colors.red;
 }
 
 
