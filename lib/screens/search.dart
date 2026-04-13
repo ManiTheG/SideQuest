@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widget/bottom.dart';
+import '../services/color_service.dart';
 
 List<Post> PrikazaniPostovi = [];
 
