@@ -52,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen>{
       await _authService.login(_emailController.text, _passwordController.text);
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const HomeScreen(title: 'Mc2 Home')),
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
         (route) => false,
       );
       }
