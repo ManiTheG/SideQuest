@@ -210,7 +210,7 @@ class _SignupScreenState extends State<SignupScreen>{
               //loinka/zaporka
         
               //lozinka
-            /*  TextField(
+              TextField(
                 controller: _passwordController,
                 style: TextStyle(color: Colors.white),
                 decoration: InputDecoration(
@@ -225,7 +225,7 @@ class _SignupScreenState extends State<SignupScreen>{
                 ),
                 obscureText: true,
                 onChanged: (value){ passNotifier.value = PasswordStrength.calculate(text: _passwordController.text);},
-              ),*/
+              ),
               const SizedBox(height: 16),
 
               TextField(

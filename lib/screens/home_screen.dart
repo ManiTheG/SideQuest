@@ -1,7 +1,11 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../services/firebase_options.dart';
+import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'package:flutter/material.dart';
 import '../widget/bottom.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Post {
   final String naslov;
@@ -16,8 +20,6 @@ class Post {
     required this.interesi,
   });
 }
-
-final List<String> _interesi = ["interes1", "interes2", "interes3", "interes4", "novo", "zanimljivo", "popularno", "tehnologija", "putovanja", "hrana", "fitness"];
 
 final List<Post> _posts = [
   Post(
@@ -70,7 +72,6 @@ final List<Post> _posts = [
   ),
 ];
 
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.title});
   final String title;
@@ -82,8 +83,14 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-
   final List<String> _selectedInterests = [];
+
+  List<String> _interesi = [  
+    'interes1',
+    'interes2',
+    'interes3',
+    'interes4',
+  ];
 
   void _selectToggle(String interest) {
     setState(() {
