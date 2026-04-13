@@ -1,10 +1,18 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+final firestoreSideQuest = FirebaseFirestore.instanceFor(
+  app: Firebase.app(),
+  databaseId: 'sidequest-db',
+);
 
 class AuthService {
 
   // instanciranje FirebaseAuth-a koji će se bbrinuti za autentifikaciju
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  
   // getter za Stream podataka (login user/logout null) u kojem auth sluša promjene
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
@@ -23,8 +31,10 @@ class AuthService {
     }
   }
 
+
   //funkcija za login korisnika. Pokušava prijavit korisnika, ako uspije vrača UserCredetials ako ne, baca error
   Future<UserCredential> login(String email, String password) async {
+  
     try {
       return await _auth.signInWithEmailAndPassword(
         email: email.trim(),
@@ -39,6 +49,7 @@ class AuthService {
   //fnkcija za logout/sign out
   Future<void> logout() async {
     await _auth.signOut();
+    await Future.delayed(const Duration(milliseconds: 500));
   }
 
   //resetiranje lozinke. Pokušava poslati email za resetiranje lozinke, ako ne uspije baca error

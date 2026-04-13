@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:sidequest/signup_screen.dart';
+import 'package:email_validator/email_validator.dart';
+import 'package:flutter/services.dart';
+import 'package:sidequest/screens/home_screen.dart';
+import 'package:sidequest/screens/reset_password_screen.dart';
+import 'package:sidequest/screens/signup_screen.dart';
 import '../services/auth_service.dart';
 
 
@@ -30,7 +34,13 @@ class _LoginScreenState extends State<LoginScreen>{
       setState(() => _errorMessage = 'Please enter email and password to proceed.');
       _emailController.clear();
       _passwordController.clear();
-      return;
+      //return;
+    }
+
+    if (!EmailValidator.validate(_emailController.text)) {
+      setState(() => _errorMessage = 'Please enter a valid email address.');
+      _emailController.clear();
+      //return;
     }
 
     setState(() {
@@ -38,30 +48,21 @@ class _LoginScreenState extends State<LoginScreen>{
       _errorMessage = null;
     });
 
-    try{
+    try {
       await _authService.login(_emailController.text, _passwordController.text);
-    }
-    catch(e){
-      setState(() => _errorMessage = e.toString());
-    }finally{
-      setState(() => _isLoading = false);
-    }
-
-  }
-
-  Future <void> _resetPassword() async{
-    if(_emailController.text.isEmpty){
-      setState(() => _errorMessage = 'Please enter your email to reset password.');
-      _emailController.clear();
-      return;
-    }
-    try{
-      await _authService.resetPassword(_emailController.text);
-      setState(()=> _errorMessage = 'Password reset email sent. Please check your inbox.');
-    } catch(e){
-      setState(() => _errorMessage =e.toString());
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const HomeScreen(title: 'Mc2 Home')),
+        (route) => false,
+      );
+      }
+    } catch (e) {
+      if (mounted) {setState(() => _errorMessage = e.toString());}
+    } finally {
+      if (mounted) {setState(() => _isLoading = false);}
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -83,8 +84,9 @@ class _LoginScreenState extends State<LoginScreen>{
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(height: 12),
-            //Icon(Icons.lock_rounded, size: 64, color: Colors.white),
-            //Image.asset('assets/img/SQ.png', height: 64),
+
+            //TODO: povečaj ikonu i zamjeni u failu img sa logom bez pozadine
+            Image.asset('assets/img/SQ.png', height: 64),
             const SizedBox(height: 8),
             Text('Welcome Back', style: TextStyle(
               fontSize: 40,
@@ -98,6 +100,7 @@ class _LoginScreenState extends State<LoginScreen>{
             //email inpput field, input tip je eamil, prelazi na password
             TextField(
               controller: _emailController,
+              inputFormatters: [LengthLimitingTextInputFormatter(254)],
               style: TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 labelText: 'Email',
@@ -110,13 +113,16 @@ class _LoginScreenState extends State<LoginScreen>{
                 ),
               ),
               keyboardType: TextInputType.emailAddress,
+              autofillHints: [AutofillHints.email],
               textInputAction: TextInputAction.next,
             ),
+
             const SizedBox(height: 16),
 
             //password input field, zvjezdasti tekst, n enter pozivae login
             TextField(
               controller: _passwordController,
+              inputFormatters: [LengthLimitingTextInputFormatter(128)],
               style: TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 labelText: 'Password',
@@ -144,8 +150,8 @@ class _LoginScreenState extends State<LoginScreen>{
             AnimatedSize(
               duration: Duration(milliseconds: 300),
               curve: Curves.easeInOut,
-              child: _errorMessage != null
-                ? Container(
+              child: _errorMessage != null ? 
+              Container(
                     margin: EdgeInsets.only(top: 16),
                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
@@ -172,8 +178,9 @@ class _LoginScreenState extends State<LoginScreen>{
                 foregroundColor: Colors.white,
                 alignment: Alignment.centerLeft,
                 ),
-              onPressed: _resetPassword, 
-              child: const Text('Forgot Password?')),
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ResetPasswordScreen()),
+              ), 
+              child: const Text('Forgot your Password?')),
 
             _isLoading? const Center(child: CircularProgressIndicator())
             //gumb za poziv login funkcije
@@ -189,7 +196,7 @@ class _LoginScreenState extends State<LoginScreen>{
                 elevation: 4,
                 shadowColor: Color(0xFF6C63FF).withValues(alpha: 0.4)
               ),
-              child: const Text('Login', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              child: const Text('Login', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ),
 
             //tekstualni gumb za promjenu na singup screen
@@ -197,8 +204,8 @@ class _LoginScreenState extends State<LoginScreen>{
               style: TextButton.styleFrom(
                 foregroundColor: Colors.white,
                 alignment: Alignment.center,
-                ),
-              onPressed:  ()=> Navigator.push(context, MaterialPageRoute(builder: (context) => const SignupScreen()),
+              ),
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SignupScreen()),
               ), 
               child: const Text("Don't have an account? Sign up and join us!"),
             ),
