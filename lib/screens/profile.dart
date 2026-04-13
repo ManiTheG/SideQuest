@@ -187,6 +187,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 // submit button
                 ElevatedButton(
                   onPressed: () {
+                    //TODO: dodati funkcionalnost za novi post
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.buttonColor,
