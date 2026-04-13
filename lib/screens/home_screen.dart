@@ -3,75 +3,8 @@ import 'package:flutter/material.dart';
 import '../widget/bottom.dart';
 
 
-class Post {
-  final String naslov;
-  final String opis;
-  final String autor;
-  final List<String> interesi;
-
-  Post({
-    required this.naslov,
-    required this.opis,
-    required this.autor,
-    required this.interesi,
-  });
-}
-
-final List<Post> _posts = [
-  Post(
-    naslov: 'Moj prvi post',
-    opis: 'Opis posta',
-    autor: 'Ivan',
-    interesi: ['interes1', 'interes2'],
-  ),
-  Post(
-    naslov: 'Drugi post',
-    opis: 'Neki opis',
-    autor: 'Ana',
-    interesi: ['interes2', 'interes3'],
-  ),
-  Post(
-    naslov: 'Treći post',
-    opis: 'Još jedan opis',
-    autor: 'Marko',
-    interesi: ['interes4'],
-  ),
-  Post(
-    naslov: 'Putovanja i avanture',
-    opis: 'Koristan vodič za budžetno putovanje po Europi.',
-    autor: 'Luka',
-    interesi: ['interes1', 'interes3'],
-  ),
-  Post(
-    naslov: 'Recept dana',
-    opis: 'Brzi recept za ukusnu vegansku tjesteninu.',
-    autor: 'Maja',
-    interesi: ['interes2'],
-  ),
-  Post(
-    naslov: 'Tehnologija 2026',
-    opis: 'Pregled najzanimljivijih trendova u mobilnom razvoju.',
-    autor: 'Petar',
-    interesi: ['interes3', 'interes4'],
-  ),
-  Post(
-    naslov: 'Fit & zdravlje',
-    opis: 'Jednostavan plan treninga za početnike kod kuće.',
-    autor: 'Sara',
-    interesi: ['interes1', 'interes4'],
-  ),
-  Post(
-    naslov: 'Knjiga koju vrijedi pročitati',
-    opis: 'Kratka recenzija i citati iz najbolje prodavane knjige.',
-    autor: 'Ivona',
-    interesi: ['interes2', 'interes3'],
-  ),
-];
-
-
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.title});
-  final String title;
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -80,16 +13,31 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
+  final ScrollController _scrollController = ScrollController();
+  
   final InterestsService _interestsService = InterestsService();
+  final postsService _postsService = postsService();
 
-  List<String> _allInterests =[];
+  List<String> _userInterests =[];
+  List<Map<String, dynamic>> _allPosts = [];
+
   final List<String> _selectedInterests = [];
 
 
   @override
   void initState() {
     super.initState();
-    _loadAllInterests();
+    _loadUserInterests().then((_) =>  _loadFilteredPosts());
+    print('================================================================' );
+
+
+    _scrollController.addListener((){
+      if(_scrollController.position.pixels == _scrollController.position.maxScrollExtent - 200){
+        if(_postsService.morePostsAvailable){
+          _loadFilteredPosts();
+        }
+      }
+    });
   }
 
   void _selectToggle(String interest) {
@@ -102,18 +50,26 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<void> _loadAllInterests() async{
-    final interests = await _interestsService.loadAllInterests();
+  Future<void> _loadUserInterests() async{
+    final interests = await _interestsService.loadUserInterests();
    
-    setState(() => _allInterests = interests);
+    if(mounted){setState(() => _userInterests = interests);}
+  }
+
+  Future<void> _loadFilteredPosts() async{
+    final posts = await _postsService.loadPosts(_userInterests);
+
+    if(mounted){setState(() => _allPosts = posts);}
   }
 
 
-  List<Post> get _filteredPosts {
-    if (_selectedInterests.isEmpty) return _posts;
-    return _posts.where((p) => p.interesi.any((i) => _selectedInterests.contains(i))).toList();
+  List<Map<String, dynamic>> get _filteredPosts {
+    if (_selectedInterests.isEmpty) return _allPosts;
+    return _allPosts.where((p) {
+      final interests = List<String>.from(p['interests']??[]);
+      return interests.any((i) => _selectedInterests.contains(i));
+    }).toList();
   }
-
 
 
   @override
@@ -143,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       scrollDirection: Axis.horizontal,
                       physics: const BouncingScrollPhysics(),
                       child: Row(
-                        children: _allInterests.map((interest) {
+                        children: _userInterests.map((interest) {
                           final isSelected = _selectedInterests.contains(interest);
                           return Padding(
                             padding: const EdgeInsets.only(right: 8.0),
@@ -183,9 +139,17 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       )
                     : ListView.builder(
+                      controller: _scrollController,
                         itemCount: _filteredPosts.length,
                         itemBuilder: (context, index) {
                           final post = _filteredPosts[index];
+
+                          if (index == _allPosts.length) {
+                            return _postsService.morePostsAvailable
+                              ? const Center(child: CircularProgressIndicator())
+                              : const Center(child: Text('No more posts', style: TextStyle(color: Colors.white)));
+                          }
+
                           return Container(
                             margin: const EdgeInsets.symmetric(vertical: 8),
                             padding: const EdgeInsets.all(12),
@@ -198,17 +162,17 @@ class _HomeScreenState extends State<HomeScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 
-                                Text(post.naslov, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                                Text(post['title']??'', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
                                 const SizedBox(height: 6),
-                                Text(post.opis, style: TextStyle(color: Colors.white70),),
+                                Text(post['description']??'', style: TextStyle(color: Colors.white70),),
                                 const SizedBox(height: 8),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('Autor: ${post.autor}', style: const TextStyle(fontStyle: FontStyle.italic, color: Colors.white60)),
+                                    Text('Autor: ${post['authorId']??''}', style: const TextStyle(fontStyle: FontStyle.italic, color: Colors.white60)),
                                     Wrap(
                                       spacing: 6,
-                                      children: post.interesi.map((i) => Chip(
+                                      children: (post['interests'] as List<dynamic>? ?? []).cast<String>().map((i) => Chip(
                                         label: Text(i, style: TextStyle(color: Colors.white, fontSize: 12)),
                                         backgroundColor: Color.fromARGB(255, 16, 103, 234),
                                         padding: EdgeInsets.zero,

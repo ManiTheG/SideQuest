@@ -25,38 +25,7 @@ class ProfilePage extends StatefulWidget {
       : userName = 'Slađana B.',
         userBio = 'Puzzle Master',
         userInterests = const [],
-        userPosts = const [
-          {
-            'naslov': 'Prvo rješenje zagonetke',
-            'opis': 'Podijelila sam rješenje moje omiljene zagonetke.',
-            'autor': 'Slađana B.',
-            'interesi': ['Puzzles', 'Tehnologija'],
-          },
-          {
-            'naslov': 'D&D kampanja - savjeti',
-            'opis': 'Kako voditi zanimljivu kampanju za početnike.',
-            'autor': 'Slađana B.',
-            'interesi': ['D&D'],
-          },
-          {
-            'naslov': 'Putovanje u Sloveniju',
-            'opis': 'Mali vodič i preporuke za putovanje.',
-            'autor': 'Slađana B.',
-            'interesi': ['Putovanja'],
-          },
-          {
-            'naslov': 'Arhery basics',
-            'opis': 'Osnove streličarstva za početnike.',
-            'autor': 'Slađana B.',
-            'interesi': ['Archery', 'Fitness'],
-          },
-          {
-            'naslov': 'Novi trik za zagonetke',
-            'opis': 'Kratki vodič s nekoliko brzih trikova za rješavanje logičkih zagonetki.',
-            'autor': 'Slađana B.',
-            'interesi': ['Puzzles'],
-          },
-        ];
+        userPosts = const [];
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -64,19 +33,26 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   int _currentIndex = 2;
-  final AuthService _authService = AuthService();
+  //final AuthService _authService = AuthService();
   final InterestsService _interestsService = InterestsService();
-  bool _isLoading = false;
-  String? _errorMessage;
+  final postsService _postsService = postsService();
 
   List<String> _userInterests = [];
+  List<Map<String, dynamic>> _userPosts = [];
+
 
   
   @override
   void initState() {
     super.initState();
     _loadUserInterests();
-    print(_userInterests);
+    _loadUserPosts();
+  }
+
+    Future<void> _loadUserPosts() async{
+    final posts = await _postsService.loadUserPosts();
+
+    setState(() => _userPosts = posts);
   }
 
   Future<void> _loadUserInterests() async{
@@ -98,7 +74,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final posts = widget.userPosts;
+   // final posts = widget.userPosts;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -235,7 +211,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ],
               ),              const SizedBox(height: 8),
-              if (posts.isEmpty)
+              if (_userPosts.isEmpty)
               // prikaz kada nema postova
                 Card(
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -260,11 +236,11 @@ class _ProfilePageState extends State<ProfilePage> {
               else
               // prikaz postova ako ih ima
                 Column(
-                  children: posts.map((p) {
-                    final naslov = p['naslov'] ?? '';
-                    final opis = p['opis'] ?? '';
-                    final autor = p['autor'] ?? '';
-                    final interesi = (p['interesi'] as List<dynamic>? ?? []).cast<String>();
+                  children: _userPosts.map((p) {
+                    final naslov = p['title'] ?? '';
+                    final opis = p['description'] ?? '';
+                    final autor = p['authorId'] ?? '';
+                    final interesi = (p['interests'] as List<dynamic>? ?? []).cast<String>();
                     return Container(
                       margin: const EdgeInsets.symmetric(vertical: 8),
                       padding: const EdgeInsets.all(12),

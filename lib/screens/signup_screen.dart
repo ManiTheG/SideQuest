@@ -91,7 +91,7 @@ class _SignupScreenState extends State<SignupScreen>{
 
     if(_userNameController.text.isEmpty || _emailController.text.isEmpty
      || _passwordController.text.isEmpty || _confirmPasswordController.text.isEmpty){
-        setState (() => _errorMessage = 'All field must me filled to continue');
+        setState (() => _errorMessage = 'All fields must be filled to continue');
         return;
      }
 
@@ -396,7 +396,7 @@ class _SignupScreenState extends State<SignupScreen>{
                 foregroundColor: Colors.white,
                 alignment: Alignment.center,
                 ),
-                child: const Text('Already have an account? Login'))
+                child: const Text('Already have an account? Login!'))
             ],
           ),
           ),
