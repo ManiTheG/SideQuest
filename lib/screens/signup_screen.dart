@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:password_strength_checker/password_strength_checker.dart';
-
+import 'package:flutter/services.dart';
 import 'package:sidequest/services/auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:sidequest/services/color_service.dart';
+import 'package:sidequest/services/db_read_service.dart';
 import 'dart:async';
 
 class SignupScreen extends StatefulWidget{
@@ -21,18 +22,30 @@ class _SignupScreenState extends State<SignupScreen>{
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final AuthService _authService = AuthService();
-  final passNotifier = ValueNotifier<PasswordStrength?>(null);
+  final InterestsService _interestsService = InterestsService();
+  //final InterestsServices _interestsService = InterestsServices();
+  double _passStrength = 0;
   bool _isLoading = false;
   String? _errorMessage;
 
   //lista će zasad biti definirana ovdje
 
-  final List<String> _allInterests = 
-  ['plaseholder1','plaseholder2','plaseholder3',
-  'plaseholder4','plaseholder5','plaseholder6'];
+  List<String> _allInterests = [];
 
 //odair korisnika barem jedan mora biti
   final List<String> _userInterests = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAllInterests();
+  }
+
+  Future<void> _loadAllInterests() async{
+    final interests = await _interestsService.loadAllInterests();
+   
+    setState(() => _allInterests = interests);
+  }
 
   @override
   void dispose(){
@@ -53,6 +66,27 @@ class _SignupScreenState extends State<SignupScreen>{
     });
   }
 
+  bool _passValidation(String password){
+    String pass = password.trim();
+    if(pass.isEmpty){ setState(() =>  _passStrength = 0);}
+    else if(pass.length < 6) {setState(() =>  _passStrength = 1/5);}
+    else if(pass.length < 12) {setState(() =>  _passStrength = 2/4);}
+    else if(pass.length < 15) {setState(() =>  _passStrength = 3/4);}
+    else {
+      if((RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*["$&+,:;=?@#|<>.^*()%!-]).*$')).hasMatch(pass)){
+        setState(() =>  _passStrength = 1);
+        return true;
+      }else{
+        setState(() =>  _passStrength = 3/4);
+        return false;
+      }
+
+    }
+    return false;
+  }
+
+
+
   Future<void> _signUp () async{
 
     if(_userNameController.text.isEmpty || _emailController.text.isEmpty
@@ -63,34 +97,38 @@ class _SignupScreenState extends State<SignupScreen>{
 
   
     if (!EmailValidator.validate(_emailController.text)) {
-      setState(() => _errorMessage = 'Please enter a valid email address.');
+      setState(() => _errorMessage = 'Please enter a valid email address');
       _emailController.clear();
       return;
     }
 
-     if(!(_passwordController.text ==_confirmPasswordController.text)){
+    if(!(_passwordController.text ==_confirmPasswordController.text)){
       setState(()=> _errorMessage = 'Passwords do not match!');
       return;
-     }
+    }
 
-     if(!(_passwordController.text.contains(RegExp(r'[a-z]')) && _passwordController.text.contains(RegExp(r'[A-Z]'))
-     && _passwordController.text.contains(RegExp(r'[0-9]')) && _passwordController.text.contains(RegExp(r'["$&+,:;=?@#|<>.^*()%!-]')))){
+    if(_passStrength<3/4){
+      setState(() => _errorMessage = 'Password is not strong enough!');
+      return;
+    }
+
+    if(!(_passwordController.text.contains(RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*["$&+,:;=?@#|<>.^*()%!-]).*$')))){
       setState(()=> _errorMessage = 'Password must contain at least one: \nlowercase letter\nuppercae letter\nnumber\nspecial character');
       return;
-     }
+  }
 
-     if(_passwordController.text.length<6){
+    if(_passwordController.text.length<6){
       setState(()=> _errorMessage = 'Password must be at least 6 characters long');
       return;
-     }
+    }
 
-     if(_userInterests.isEmpty){
+    if(_userInterests.isEmpty){
       setState(()=> _errorMessage = 'Please select at least one interest');
       return;
-     }
+    }
 
 
-     setState(() {
+    setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
@@ -128,9 +166,9 @@ class _SignupScreenState extends State<SignupScreen>{
 
   }
 
-
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       backgroundColor: Colors.transparent,
       //resizeToAvoidBottomInset: true,
@@ -145,6 +183,7 @@ class _SignupScreenState extends State<SignupScreen>{
         ),
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
+          child: Form(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -176,6 +215,7 @@ class _SignupScreenState extends State<SignupScreen>{
               //koisnicko ime
               TextField(
                 controller: _userNameController,
+                inputFormatters: [LengthLimitingTextInputFormatter(64)],
                 style: TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   labelText: 'Username',
@@ -193,6 +233,7 @@ class _SignupScreenState extends State<SignupScreen>{
               //email
               TextField(
                 controller: _emailController,
+                inputFormatters: [LengthLimitingTextInputFormatter(254)],
                 style: TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   labelText: 'Email',
@@ -206,30 +247,45 @@ class _SignupScreenState extends State<SignupScreen>{
                   ),
                 keyboardType: TextInputType.emailAddress
               ),
+
               const SizedBox(height: 16),
-              //loinka/zaporka
-        
+              
               //lozinka
-              TextField(
-                controller: _passwordController,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  labelStyle: TextStyle(color: Colors.white60),
-                  filled: true,
-                  fillColor: Color.fromARGB(255, 55, 73, 87),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide.none,
+
+              TextFormField(
+                  controller: _passwordController,
+                  inputFormatters: [LengthLimitingTextInputFormatter(128)],
+                  style: TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    errorStyle: TextStyle(height: 0),
+                    labelText: 'Password',
+                    labelStyle: TextStyle(color: Colors.white60),
+                    filled: true,
+                    fillColor: Color.fromARGB(255, 55, 73, 87),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
                     ),
-                ),
-                obscureText: true,
-                onChanged: (value){ passNotifier.value = PasswordStrength.calculate(text: _passwordController.text);},
+                  ),
+
+                  obscureText: true,
+                  onChanged: (value){
+                    _passValidation(value);
+                  },
+                  validator: (value){
+                    if (!_passValidation(value ?? '')) {
+                      return 'Password is not strong enough';
+                    }
+                    return null;
+                  },
+
               ),
+
               const SizedBox(height: 16),
 
               TextField(
                 controller: _confirmPasswordController,
+                inputFormatters: [LengthLimitingTextInputFormatter(128)],
                 style: TextStyle(color: Colors.white),
                 decoration:  InputDecoration(
                   labelText: 'Confirm password',
@@ -243,13 +299,23 @@ class _SignupScreenState extends State<SignupScreen>{
                   ),
                 obscureText: true,
               ),
-              const SizedBox(height: 12),
-              
-              /*PasswordStrengthFormChecker(
-                minimumStrengthRequired: PasswordStrength.strong,
-                onChanged: (_passwordController.text, passNotifier){passNotifier.value = PasswordStrength.calculate(text: _passwordController.text);},
-                
-                ),*/
+
+              const SizedBox(height: 16),
+
+              TweenAnimationBuilder<double>(
+                tween: Tween<double>(end: _passStrength),
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeInOut, 
+                builder: (context, value, _){
+                  return LinearProgressIndicator(
+                    value:value,
+                    backgroundColor: Colors.white,
+                    minHeight: 10,
+                    borderRadius: BorderRadius.circular(30),
+                    color: strengthColor(value),
+                  );
+                },
+              ),
 
               AnimatedSize(
                 duration: Duration(milliseconds: 300),
@@ -333,8 +399,9 @@ class _SignupScreenState extends State<SignupScreen>{
                 child: const Text('Already have an account? Login'))
             ],
           ),
+          ),
         ),
-      )
+      ),
     );
   }
 }

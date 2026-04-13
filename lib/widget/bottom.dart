@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sidequest/services/color_service.dart';
 
 class SharedBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -8,9 +9,9 @@ class SharedBottomNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final routes = ['/home', '/search', '/profile'];
     return BottomNavigationBar(
-      backgroundColor: Color.fromARGB(255, 25, 36, 54),
-      selectedItemColor: Color.fromARGB(255, 16, 103, 234),
-      unselectedItemColor: Colors.white38,
+      backgroundColor: AppColors.secondary,
+      selectedItemColor: AppColors.buttonColor,
+      unselectedItemColor: AppColors.unselectButtonColor,
       currentIndex: currentIndex,
       iconSize: 32, // <-- larger icons
       showSelectedLabels: false, // <-- hide labels

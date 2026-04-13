@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:flutter/services.dart';
+import 'package:sidequest/screens/home_screen.dart';
 import 'package:sidequest/screens/reset_password_screen.dart';
 import 'package:sidequest/screens/signup_screen.dart';
 import '../services/auth_service.dart';
@@ -46,15 +48,19 @@ class _LoginScreenState extends State<LoginScreen>{
       _errorMessage = null;
     });
 
-    try{
+    try {
       await _authService.login(_emailController.text, _passwordController.text);
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const HomeScreen(title: 'Mc2 Home')),
+        (route) => false,
+      );
+      }
+    } catch (e) {
+      if (mounted) {setState(() => _errorMessage = e.toString());}
+    } finally {
+      if (mounted) {setState(() => _isLoading = false);}
     }
-    catch(e){
-      if(mounted){setState(() => _errorMessage = e.toString());}
-    }finally{
-      if(mounted){setState(() => _isLoading = false);}
-    }
-
   }
 
 
@@ -94,6 +100,7 @@ class _LoginScreenState extends State<LoginScreen>{
             //email inpput field, input tip je eamil, prelazi na password
             TextField(
               controller: _emailController,
+              inputFormatters: [LengthLimitingTextInputFormatter(254)],
               style: TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 labelText: 'Email',
@@ -109,11 +116,13 @@ class _LoginScreenState extends State<LoginScreen>{
               autofillHints: [AutofillHints.email],
               textInputAction: TextInputAction.next,
             ),
+
             const SizedBox(height: 16),
 
             //password input field, zvjezdasti tekst, n enter pozivae login
             TextField(
               controller: _passwordController,
+              inputFormatters: [LengthLimitingTextInputFormatter(128)],
               style: TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 labelText: 'Password',

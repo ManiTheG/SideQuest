@@ -49,11 +49,3 @@ class MyApp extends StatelessWidget {
   }
   }
 
-
-  /*citanje iz baze:
-  final doc = await FirebaseFirestore.instance
-    .collection('users')
-    .doc(uid)
-    .get();
-
-List<String> interests = List<String>.from(doc['interests']);@*/
