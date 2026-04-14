@@ -16,7 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
   
   final InterestsService _interestsService = InterestsService();
-  final postsService _postsService = postsService();
+  final PostsService _postsService = PostsService();
 
   List<String> _userInterests =[];
   List<Map<String, dynamic>> _allPosts = [];
@@ -28,9 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadUserInterests().then((_) =>  _loadFilteredPosts());
-    print('================================================================' );
-
-
+    
     _scrollController.addListener((){
       if(_scrollController.position.pixels == _scrollController.position.maxScrollExtent - 200){
         if(_postsService.morePostsAvailable){
@@ -38,6 +36,12 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       }
     });
+  }
+
+  @override
+  void dispose(){
+    _scrollController.dispose();
+    super.dispose();
   }
 
   void _selectToggle(String interest) {

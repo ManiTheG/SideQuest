@@ -34,12 +34,16 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   int _currentIndex = 2;
+  
   final AuthService _authService = AuthService();
   final InterestsService _interestsService = InterestsService();
-  final postsService _postsService = postsService();
+  final PostsService _postsService = PostsService();
+  final UserInfo _userInfo = UserInfo();
 
   List<String> _userInterests = [];
   List<Map<String, dynamic>> _userPosts = [];
+  String _username = '';
+  final String _userBio = '';
 
   final TextEditingController _newTitleController = TextEditingController();
   final TextEditingController _newOpisController = TextEditingController();
@@ -51,8 +55,14 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     _loadUserInterests();
     _loadUserPosts();
+    _getUsername();
   }
 
+  Future<void> _getUsername() async{
+    final username = await _userInfo.getUsername();
+
+    setState(()=> _username = username);
+  }
 
   Future<void> _loadUserPosts() async{
     final posts = await _postsService.loadUserPosts();
@@ -299,13 +309,13 @@ class _ProfilePageState extends State<ProfilePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                widget.userName,
+                                _username,
                                 style: const TextStyle(fontSize: 18, color: AppColors.textColor, fontWeight: FontWeight.bold),
                               ),
-                              if (widget.userBio != null && widget.userBio!.isNotEmpty)
+                              if (_userBio != null && _userBio.isNotEmpty)
                                 Padding(
                                   padding: const EdgeInsets.only(top: 4),
-                                  child: Text(widget.userBio!, style: const TextStyle(color: AppColors.textColorOpis)),
+                                  child: Text(_userBio, style: const TextStyle(color: AppColors.textColorOpis)),
                                 ),
                             ],
                           ),
