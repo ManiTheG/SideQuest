@@ -1,80 +1,11 @@
 import 'package:flutter/material.dart';
 import '../widget/bottom.dart';
 import '../services/color_service.dart';
+import '../services/db_read_service.dart';
 
-List<Post> PrikazaniPostovi = [];
+List<String> InteresiZaPretragu = [];
 
-List<String> InteresiZaPretragu = [
-  'interes1',
-  'interes2',
-  'interes3',
-  'interes4',
-];
-
-class Post {
-  final String naslov;
-  final String opis;
-  final String autor;
-  final List<String> interesi;
-
-  Post({
-    required this.naslov,
-    required this.opis,
-    required this.autor,
-    required this.interesi,
-  });
-}
-
-final List<Post> Postovi = [
-  Post(
-    naslov: 'Moj prvi post',
-    opis: 'Opis posta',
-    autor: 'Ivan',
-    interesi: ['interes1', 'interes2'],
-  ),
-  Post(
-    naslov: 'Drugi post',
-    opis: 'Neki opis',
-    autor: 'Ana',
-    interesi: ['interes2', 'interes3'],
-  ),
-  Post(
-    naslov: 'Treći post',
-    opis: 'Još jedan opis',
-    autor: 'Marko',
-    interesi: ['interes4'],
-  ),
-  Post(
-    naslov: 'Putovanja i avanture',
-    opis: 'Koristan vodič za budžetno putovanje po Europi.',
-    autor: 'Luka',
-    interesi: ['interes1', 'interes3'],
-  ),
-  Post(
-    naslov: 'Recept dana',
-    opis: 'Brzi recept za ukusnu vegansku tjesteninu.',
-    autor: 'Maja',
-    interesi: ['interes2'],
-  ),
-  Post(
-    naslov: 'Tehnologija 2026',
-    opis: 'Pregled najzanimljivijih trendova u mobilnom razvoju.',
-    autor: 'Petar',
-    interesi: ['interes3', 'interes4'],
-  ),
-  Post(
-    naslov: 'Fit & zdravlje',
-    opis: 'Jednostavan plan treninga za početnike kod kuće.',
-    autor: 'Sara',
-    interesi: ['interes1', 'interes4'],
-  ),
-  Post(
-    naslov: 'Knjiga koju vrijedi pročitati',
-    opis: 'Kratka recenzija i citati iz najbolje prodavane knjige.',
-    autor: 'Ivona',
-    interesi: ['interes2', 'interes3'],
-  ),
-];
+List<Map<String, dynamic>> PrikazaniPostovi = [];
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -85,19 +16,47 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
 
+    final ScrollController _scrollController = ScrollController();
+    final InterestsService _interestsService = InterestsService();
+    final PostsService _postsService = PostsService();
+
    void _searchFor(String query) {
     debugPrint('Search requested for: $query');    
     setState(() {
-      PrikazaniPostovi = Postovi
-          .where((post) => post.interesi.contains(query))
+      PrikazaniPostovi = PrikazaniPostovi
+          .where((post) => post['interests'].contains(query))
           .toList();
     });
+  }
+
+  
+
+  Future<void> _loadAllInterests() async {
+    final interests = await _interestsService.loadAllInterests();
+   
+    if(mounted){setState(() => InteresiZaPretragu = interests);}
+  }
+
+  Future<void> _loadPosts() async{
+    final posts = await _postsService.loadPosts(InteresiZaPretragu);
+
+    if(mounted){setState(() => PrikazaniPostovi = posts);}
   }
 
   @override
   void initState() {
     super.initState();
-      PrikazaniPostovi = Postovi;
+    _loadAllInterests();
+    _loadPosts();
+
+    _scrollController.addListener((){
+      if(_scrollController.position.pixels == _scrollController.position.maxScrollExtent - 200){
+        if(_postsService.morePostsAvailable){
+          _loadPosts();
+        }
+      }
+    });
+    
   }
 
   @override
@@ -120,7 +79,7 @@ class _SearchPageState extends State<SearchPage> {
                 (BuildContext context, SearchController controller) {
               final String input = controller.value.text;
               final Iterable<String> matches = input.isEmpty
-                  ? InteresiZaPretragu.take(5)
+                  ? InteresiZaPretragu.take(100)
                   : InteresiZaPretragu.where(
                       (s) => s.toLowerCase().contains(input.toLowerCase()));
 
@@ -183,17 +142,18 @@ class _SearchPageState extends State<SearchPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(post.naslov, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                                
+                                Text(post['title']??'', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
                                 const SizedBox(height: 6),
-                                Text(post.opis, style: TextStyle(color: Colors.white70),),
+                                Text(post['description']??'', style: TextStyle(color: Colors.white70),),
                                 const SizedBox(height: 8),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('Autor: ${post.autor}', style: const TextStyle(fontStyle: FontStyle.italic, color: Colors.white60)),
+                                    Text('Autor: ${post['authorId']??''}', style: const TextStyle(fontStyle: FontStyle.italic, color: Colors.white60)),
                                     Wrap(
                                       spacing: 6,
-                                      children: post.interesi.map((i) => Chip(
+                                      children: (post['interests'] as List<dynamic>? ?? []).cast<String>().map((i) => Chip(
                                         label: Text(i, style: TextStyle(color: Colors.white, fontSize: 12)),
                                         backgroundColor: Color.fromARGB(255, 16, 103, 234),
                                         padding: EdgeInsets.zero,
