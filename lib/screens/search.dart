@@ -114,8 +114,7 @@ class _SearchPageState extends State<SearchPage> {
                 onChanged: (_) {
                   controller.openView();
                 },
-                leading: const Icon(Icons.search, color: Colors.black26),
-              );
+                leading: const Icon(Icons.search, color: AppColors.primaryBackground,));
             },
             suggestionsBuilder:
                 (BuildContext context, SearchController controller) {

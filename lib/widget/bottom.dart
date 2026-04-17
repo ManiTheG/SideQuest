@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sidequest/screens/search.dart';
 import 'package:sidequest/services/color_service.dart';
-import 'package:audioplayers/audioplayers.dart';
 import '../screens/home_screen.dart';
 import '../screens/search.dart';
 import '../screens/profile.dart';
