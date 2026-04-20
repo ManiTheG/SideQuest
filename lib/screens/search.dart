@@ -67,7 +67,17 @@ class _SearchPageState extends State<SearchPage> {
           backgroundColor: AppColors.secondary,
           elevation: 0,
           automaticallyImplyLeading: false,
-          title: SearchAnchor(
+          toolbarHeight: 130,
+          title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Explore', style: TextStyle(
+              color: AppColors.textColor,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            )),
+            const SizedBox(height: 8),
+          SearchAnchor(
             viewBackgroundColor: AppColors.secondary,
             viewSurfaceTintColor: Colors.transparent,
             headerTextStyle: TextStyle(color: AppColors.textColor),
@@ -85,27 +95,69 @@ class _SearchPageState extends State<SearchPage> {
                 textStyle: WidgetStatePropertyAll(TextStyle(color: AppColors.textColor)),
               );
             },
-            suggestionsBuilder:
-                (BuildContext context, SearchController controller) {
-              final String input = controller.value.text;
-              final Iterable<String> matches = input.isEmpty
-                  ? InteresiZaPretragu.take(100)
-                  : InteresiZaPretragu.where(
-                      (s) => s.toLowerCase().contains(input.toLowerCase()));
+            suggestionsBuilder: (context, controller) {
+            final String input = controller.value.text;
+            final Iterable<String> matches = input.isEmpty
+                ? InteresiZaPretragu.take(100)
+                : InteresiZaPretragu.where(
+                    (s) => s.toLowerCase().contains(input.toLowerCase()));
 
-              return matches.map((String item) {
-                return Container(
-                  color: AppColors.secondary,
-                  child: ListTile(
-                    title: Text(item, style: TextStyle(color: AppColors.textColor)),
-                    onTap: () {
-                      controller.closeView(item);
-                      _searchFor(item);
-                    },
+            return matches.map((String item) {
+              final int matchIndex = item.toLowerCase().indexOf(input.toLowerCase());
+              
+              return Column(
+                children: [
+                  Container(
+                    color: AppColors.secondary,
+                    child: ListTile(
+                      leading: Container(
+                        width: 6,
+                        height: 6,
+                        margin: EdgeInsets.only(top: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.buttonColor,
+                          shape: BoxShape.circle,
+                          ),
+                        ),
+                      minLeadingWidth: 6,
+                      title: matchIndex < 0 || input.isEmpty
+                          ? Text(item, style: TextStyle(color: AppColors.textColor))
+                          : RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: item.substring(0, matchIndex),
+                                    style: TextStyle(color: AppColors.textColorOpis),
+                                  ),
+                                  TextSpan(
+                                    text: item.substring(matchIndex, matchIndex + input.length),
+                                    style: TextStyle(
+                                      color: AppColors.textColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: item.substring(matchIndex + input.length),
+                                    style: TextStyle(color: AppColors.textColorOpis),
+                                  ),
+                                ],
+                              ),
+                            ),
+                      onTap: () {
+                        controller.closeView(item);
+                        _searchFor(item);
+                      },
+                    ),
                   ),
-                );
-              }).toList();
-            },
+                  Divider(height: 1, thickness: 0.5, 
+                    color: AppColors.textColorOpis.withValues(alpha: 0.2),
+                    indent: 16, endIndent: 16),
+                ],
+              );
+            }).toList();
+          },
+          ),
+        ],
           ),
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(16.0),
@@ -119,14 +171,25 @@ class _SearchPageState extends State<SearchPage> {
           children: [      
             // Postovi
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-              child: Text('Results', style: TextStyle(
-                color: AppColors.textColorOpis,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 1.2,
-              ),
-              textAlign: TextAlign.center, // <-- add this
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+              child: Row(
+                children: [
+                  Container(
+                    width: 3,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: AppColors.buttonColor,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text('Results', style: TextStyle(
+                    color: AppColors.textColor,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.0,
+                  )),
+                ],
               ),
             ),
             Expanded(
@@ -134,9 +197,22 @@ class _SearchPageState extends State<SearchPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: PrikazaniPostovi.isEmpty
                     ? const Center(
-                        child: Text(
-                          'No posts for selected interests',
-                          style: TextStyle(color: AppColors.textColorOpis)
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.search_off_rounded, size: 56, color: AppColors.textColorOpis),
+                            const SizedBox(height: 12),
+                            Text('No results found', style: TextStyle(
+                              color: AppColors.textColor,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            )),
+                            const SizedBox(height: 4),
+                            Text('Try searching for something else', style: TextStyle(
+                              color: AppColors.textColorOpis,
+                              fontSize: 13,
+                            )),
+                          ],
                         ),
                       )
                     : ListView.builder(
