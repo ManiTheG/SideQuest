@@ -78,12 +78,12 @@ class _ProfilePageState extends State<ProfilePage> {
 
 
   void _openNewPostSheet() {
-  _newPostInterests.clear(); // clear before opening
+  _newPostInterests.clear();
   _newTitleController.clear();
   _newOpisController.clear();
   showModalBottomSheet(
     context: context,
-    isScrollControlled: true, // allows it to grow with keyboard
+    isScrollControlled: true,
     backgroundColor: AppColors.secondary,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -93,7 +93,7 @@ class _ProfilePageState extends State<ProfilePage> {
         builder: (context, setSheetState) {
           return Padding(
             padding: EdgeInsets.fromLTRB(16, 16, 16, 
-              MediaQuery.of(context).viewInsets.bottom + 16), // moves up with keyboard
+              MediaQuery.of(context).viewInsets.bottom + 16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
