@@ -1,5 +1,4 @@
 import 'package:sidequest/screens/login_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 import '../services/db_read_service.dart';
 import 'package:flutter/material.dart';
@@ -27,38 +26,7 @@ class ProfilePage extends StatefulWidget {
       : userName = 'Slađana B.',
         userBio = 'Puzzle Master',
         userInterests = const [],
-        userPosts = const [
-          {
-            'naslov': 'Prvo rješenje zagonetke',
-            'opis': 'Podijelila sam rješenje moje omiljene zagonetke.',
-            'autor': 'Slađana B.',
-            'interesi': ['Puzzles', 'Tehnologija'],
-          },
-          {
-            'naslov': 'D&D kampanja - savjeti',
-            'opis': 'Kako voditi zanimljivu kampanju za početnike.',
-            'autor': 'Slađana B.',
-            'interesi': ['D&D'],
-          },
-          {
-            'naslov': 'Putovanje u Sloveniju',
-            'opis': 'Mali vodič i preporuke za putovanje.',
-            'autor': 'Slađana B.',
-            'interesi': ['Putovanja'],
-          },
-          {
-            'naslov': 'Arhery basics',
-            'opis': 'Osnove streličarstva za početnike.',
-            'autor': 'Slađana B.',
-            'interesi': ['Archery', 'Fitness'],
-          },
-          {
-            'naslov': 'Novi trik za zagonetke',
-            'opis': 'Kratki vodič s nekoliko brzih trikova za rješavanje logičkih zagonetki.',
-            'autor': 'Slađana B.',
-            'interesi': ['Puzzles'],
-          },
-        ];
+        userPosts = const [];
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -66,22 +34,40 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   int _currentIndex = 2;
+  
   final AuthService _authService = AuthService();
   final InterestsService _interestsService = InterestsService();
-  bool _isLoading = false;
-  String? _errorMessage;
+  final PostsService _postsService = PostsService();
+  final UserInfo _userInfo = UserInfo();
 
   List<String> _userInterests = [];
+  List<Map<String, dynamic>> _userPosts = [];
+  String _username = '';
+  final String _userBio = '';
+
   final TextEditingController _newTitleController = TextEditingController();
   final TextEditingController _newOpisController = TextEditingController();
   final List<String> _newPostInterests = [];
 
   
-  @override
+ @override
   void initState() {
     super.initState();
     _loadUserInterests();
-    print(_userInterests);
+    _loadUserPosts();
+    _getUsername();
+  }
+
+  Future<void> _getUsername() async{
+    final username = await _userInfo.getUsername();
+
+    setState(()=> _username = username);
+  }
+
+  Future<void> _loadUserPosts() async{
+    final posts = await _postsService.loadUserPosts();
+
+    setState(() => _userPosts = posts);
   }
 
   Future<void> _loadUserInterests() async{
@@ -89,6 +75,7 @@ class _ProfilePageState extends State<ProfilePage> {
    
     setState(() => _userInterests = interests);
   }
+
 
   void _openNewPostSheet() {
   _newPostInterests.clear(); // clear before opening
@@ -187,7 +174,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 // submit button
                 ElevatedButton(
                   onPressed: () {
-                    //TODO: dodati funkcionalnost za novi post
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.buttonColor,
@@ -258,7 +244,7 @@ class _ProfilePageState extends State<ProfilePage> {
   );
 
   if (confirmed == true) {
-    await FirebaseAuth.instance.signOut();
+    await _authService.logout();
     if (mounted) {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const LoginScreen()),
@@ -270,7 +256,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final posts = widget.userPosts;
     return Scaffold(
       backgroundColor: AppColors.primaryBackground,
       appBar: AppBar(
@@ -324,13 +309,13 @@ class _ProfilePageState extends State<ProfilePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                widget.userName,
+                                _username,
                                 style: const TextStyle(fontSize: 18, color: AppColors.textColor, fontWeight: FontWeight.bold),
                               ),
-                              if (widget.userBio != null && widget.userBio!.isNotEmpty)
+                              if (_userBio != null && _userBio.isNotEmpty)
                                 Padding(
                                   padding: const EdgeInsets.only(top: 4),
-                                  child: Text(widget.userBio!, style: const TextStyle(color: AppColors.textColorOpis)),
+                                  child: Text(_userBio, style: const TextStyle(color: AppColors.textColorOpis)),
                                 ),
                             ],
                           ),
@@ -414,7 +399,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         itemBuilder: (context, i) {
                           final interest = _userInterests[i];
                           return FilterChip(
-                            label: Text(interest),
+                            label: Text(interest, style: TextStyle(color: AppColors.textColor),),
                             selected: false,
                             onSelected: (_) {},
                             backgroundColor: AppColors.buttonColor,
@@ -458,7 +443,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      if (posts.isEmpty)
+                      if (_userPosts.isEmpty)
                       // prikaz kada nema postova
                         Container(
                           width: double.infinity,
@@ -485,9 +470,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               )),
                               const SizedBox(height: 16),
                               ElevatedButton(
-                                onPressed: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Create post')));
-                                },
+                                onPressed: _openNewPostSheet,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.buttonColor,
                                   foregroundColor: AppColors.textColor,
@@ -503,11 +486,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       else
                       // prikaz postova ako ih ima
                         Column(
-                          children: posts.map((p) {
-                            final naslov = p['naslov'] ?? '';
-                            final opis = p['opis'] ?? '';
-                            final autor = p['autor'] ?? '';
-                            final interesi = (p['interesi'] as List<dynamic>? ?? []).cast<String>();
+                          children: _userPosts.map((p) {
+                            final title = p['title'] ?? '';
+                            final description = p['description'] ?? '';
+                            final authorId = p['authorId'] ?? '';
+                            final interests = (p['interests'] as List<dynamic>? ?? []).cast<String>();
                             return Container(
                               margin: const EdgeInsets.symmetric(vertical: 8),
                               padding: const EdgeInsets.all(12),
@@ -518,17 +501,17 @@ class _ProfilePageState extends State<ProfilePage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(naslov, style: const TextStyle(color: AppColors.textColor, fontSize: 18, fontWeight: FontWeight.bold)),
+                                  Text(title, style: const TextStyle(color: AppColors.textColor, fontSize: 18, fontWeight: FontWeight.bold)),
                                   const SizedBox(height: 6),
-                                  Text(opis, style: TextStyle(color: AppColors.textColor,)),
+                                  Text(description, style: TextStyle(color: AppColors.textColor,)),
                                   const SizedBox(height: 8),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text('Autor: $autor', style: const TextStyle(color: AppColors.textColorAutor, fontStyle: FontStyle.italic)),
+                                      Text('Autor: $authorId', style: const TextStyle(color: AppColors.textColorAutor, fontStyle: FontStyle.italic)),
                                       Wrap(
                                         spacing: 6,
-                                        children: interesi.map((i) => Chip(
+                                        children: interests.map((i) => Chip(
                                         label: Text(i, style: TextStyle(color: AppColors.textColor, fontSize: 12)),
                                         backgroundColor: AppColors.buttonColor,
                                         side: BorderSide.none,

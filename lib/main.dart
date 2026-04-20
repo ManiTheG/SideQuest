@@ -36,13 +36,13 @@ class MyApp extends StatelessWidget {
             return const CircularProgressIndicator();
           }
           if(snapshot.hasData){
-            return const HomeScreen(title: 'Mc2 Home');
+            return const HomeScreen();
           }
           return const LoginScreen();
         },
       ),
       routes: {
-                '/home': (ctx) => const HomeScreen(title: 'SideQuest Home'),
+                '/home': (ctx) => const HomeScreen(),
                 '/search': (ctx) => const SearchPage(),
                 '/profile': (ctx) => const ProfilePage.preset(),
             },
