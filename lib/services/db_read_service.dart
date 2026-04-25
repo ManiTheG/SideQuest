@@ -152,6 +152,11 @@ class PostsService{
 
   }
 
+  void refresh() {
+    _lastAllDocument = null;
+    morePostsAvailable = true;
+  }
+
 }
 
 class UserInfo{
