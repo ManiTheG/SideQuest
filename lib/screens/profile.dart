@@ -1,4 +1,4 @@
-import 'package:sidequest/screens/login_screen.dart';
+import 'login_screen.dart';
 import '../services/auth_service.dart';
 import '../services/db_read_service.dart';
 import 'package:flutter/material.dart';
@@ -6,34 +6,16 @@ import '../widget/bottom.dart';
 import '../services/color_service.dart';
 
 class ProfilePage extends StatefulWidget {
-  final String userName;
-  final String? userBio;
-  final List<String> userInterests;
-  // List of maps with keys: 'naslov','opis','autor','interesi'
-  final List<Map<String, dynamic>> userPosts;
+  const ProfilePage({super.key});
   
-
-  const ProfilePage({
-    super.key,
-    required this.userName,
-    this.userBio,
-    required this.userInterests,
-    required this.userPosts,
-  });
-
-  // Preset constructor with sample data
-  const ProfilePage.preset({super.key})
-      : userName = 'Slađana B.',
-        userBio = 'Puzzle Master',
-        userInterests = const [],
-        userPosts = const [];
-
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
   int _currentIndex = 2;
+  String? _errorMessage;
+  bool _isLoading = false;
   
   final AuthService _authService = AuthService();
   final InterestsService _interestsService = InterestsService();
@@ -76,11 +58,105 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() => _userInterests = interests);
   }
 
+  Future<void> _newPost() async{
+    if(_newTitleController.text.isEmpty){
+      setState(()=> _errorMessage = 'Please enter a title');
+      return;
+    }
 
-  void _openNewPostSheet() {
+    else if(_newOpisController.text.isEmpty){
+      setState(()=> _errorMessage = 'Please enter a description');
+      return;
+    }
+
+    else if(_newPostInterests.isEmpty){
+      setState(()=> _errorMessage = 'Please select interests related to your post');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    
+    try{
+      await _postsService.newPost(_newTitleController.text, _newOpisController.text, _newPostInterests);
+    }catch(e){
+      setState(() => _errorMessage = 'Failed to create a post');
+    }finally{
+      setState(() => _isLoading = false);
+    }
+
+    if(mounted){
+      _newTitleController.clear();
+      _newOpisController.clear();
+      _newPostInterests.clear();
+      Navigator.pop(context);
+    }
+
+  }
+
+  Future<void> _logout() async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      backgroundColor: AppColors.secondary,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      title: const Text(
+        'Logout',
+        style: TextStyle(color: AppColors.textColor, fontWeight: FontWeight.bold),
+      ),
+      content: const Text(
+        'Are you sure you want to logout?',
+        style: TextStyle(color: AppColors.textColorOpis),
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.buttonColor,
+            foregroundColor: AppColors.textColor,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),
+            ),
+          ),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            foregroundColor: AppColors.textColor,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),
+            ),
+          ),
+          child: const Text('Logout'),
+        ),
+      ],
+    ),
+  );
+
+  if (confirmed == true) {
+    await _authService.logout();
+    if (mounted) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );}
+  }
+}
+
+void _openNewPostSheet() {
   _newPostInterests.clear(); // clear before opening
   _newTitleController.clear();
   _newOpisController.clear();
+  _errorMessage = null;
+
   showModalBottomSheet(
     context: context,
     isScrollControlled: true, // allows it to grow with keyboard
@@ -93,7 +169,7 @@ class _ProfilePageState extends State<ProfilePage> {
         builder: (context, setSheetState) {
           return Padding(
             padding: EdgeInsets.fromLTRB(16, 16, 16, 
-              MediaQuery.of(context).viewInsets.bottom + 16), // moves up with keyboard
+              MediaQuery.of(context).viewInsets.bottom + 16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -169,12 +245,38 @@ class _ProfilePageState extends State<ProfilePage> {
                     );
                   }).toList(),
                 ),
+
+                AnimatedSize(
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  child: _errorMessage != null ? 
+                  Container(
+                        margin: EdgeInsets.only(top: 16),
+                       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                       decoration: BoxDecoration(
+                          color: Colors.red.withValues(alpha: 0.15),  // light red background
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.red.withValues(alpha: 0.4)), // subtle red border
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.error_outline, color: Colors.red, size: 18),
+                            SizedBox(width: 8),
+                            Expanded(
+                             child: Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+                           ),
+                         ],
+                        ),
+                     )
+                    : SizedBox.shrink(),
+                ),
+
                 const SizedBox(height: 16),
 
                 // submit button
-                ElevatedButton(
-                  onPressed: () {
-                  },
+                _isLoading? const Center (child: CircularProgressIndicator())
+              : ElevatedButton(
+                  onPressed: _newPost,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.buttonColor,
                     foregroundColor: AppColors.textColor,
@@ -198,60 +300,6 @@ class _ProfilePageState extends State<ProfilePage> {
     });
 }
 
-  Future<void> _logout() async {
-  final confirmed = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      backgroundColor: AppColors.secondary,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      title: const Text(
-        'Logout',
-        style: TextStyle(color: AppColors.textColor, fontWeight: FontWeight.bold),
-      ),
-      content: const Text(
-        'Are you sure you want to logout?',
-        style: TextStyle(color: AppColors.textColorOpis),
-      ),
-      actions: [
-        ElevatedButton(
-          onPressed: () => Navigator.of(context).pop(false),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.buttonColor,
-            foregroundColor: AppColors.textColor,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(25),
-            ),
-          ),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: () => Navigator.of(context).pop(true),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(25),
-            ),
-          ),
-          child: const Text('Logout'),
-        ),
-      ],
-    ),
-  );
-
-  if (confirmed == true) {
-    await _authService.logout();
-    if (mounted) {
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-        (route) => false,
-      );}
-  }
-}
 
 
   @override
@@ -508,7 +556,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text('Autor: $authorId', style: const TextStyle(color: AppColors.textColorAutor, fontStyle: FontStyle.italic)),
+                                      Text('Author: $authorId', style: const TextStyle(color: AppColors.textColorAutor, fontStyle: FontStyle.italic)),
                                       Wrap(
                                         spacing: 6,
                                         children: interests.map((i) => Chip(
@@ -542,9 +590,9 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildStatColumn(String value, String label) {
     return Column(
       children: [
-        Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+        Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textColor)),
         const SizedBox(height: 4),
-        Text(label, style: const TextStyle(color: Colors.white70)),
+        Text(label, style: const TextStyle(color: AppColors.textColorOpis)),
       ],
     );
   }

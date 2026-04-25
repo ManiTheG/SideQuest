@@ -50,7 +50,7 @@ class _SearchPageState extends State<SearchPage> {
     _loadPosts();
 
     _scrollController.addListener((){
-      if(_scrollController.position.pixels == _scrollController.position.maxScrollExtent - 200){
+      if(_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200){
         if(_postsService.morePostsAvailable){
           _loadPosts();
         }
@@ -223,7 +223,7 @@ class _SearchPageState extends State<SearchPage> {
                             margin: const EdgeInsets.symmetric(vertical: 8),
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Color.fromARGB(255, 25, 36, 54),
+                              color: AppColors.secondary,
                               borderRadius: BorderRadius.circular(16),
                               
                             ),
@@ -233,7 +233,7 @@ class _SearchPageState extends State<SearchPage> {
                                 
                                 Text(post['title']??'', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textColor)),
                                 const SizedBox(height: 6),
-                                Text(post['description']??'', style: TextStyle(color: Colors.white70),),
+                                Text(post['description']??'', style: TextStyle(color: AppColors.textColorOpis),),
                                 const SizedBox(height: 8),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -243,7 +243,7 @@ class _SearchPageState extends State<SearchPage> {
                                       spacing: 6,
                                       children: (post['interests'] as List<dynamic>? ?? []).cast<String>().map((i) => Chip(
                                         label: Text(i, style: TextStyle(color: AppColors.textColor, fontSize: 12)),
-                                        backgroundColor: Color.fromARGB(255, 16, 103, 234),
+                                        backgroundColor: AppColors.buttonColor,
                                         padding: EdgeInsets.zero,
                                       )).toList(),
                                     )

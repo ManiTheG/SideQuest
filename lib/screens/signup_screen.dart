@@ -23,7 +23,6 @@ class _SignupScreenState extends State<SignupScreen>{
   final _confirmPasswordController = TextEditingController();
   final AuthService _authService = AuthService();
   final InterestsService _interestsService = InterestsService();
-  //final InterestsServices _interestsService = InterestsServices();
   double _passStrength = 0;
   bool _isLoading = false;
   String? _errorMessage;
@@ -176,7 +175,7 @@ class _SignupScreenState extends State<SignupScreen>{
         constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color.fromARGB(255, 16, 24, 40), Color.fromARGB(255, 29, 52, 97)],
+            colors: [AppColors.primaryBackground, AppColors.secondaryBackground],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -192,11 +191,11 @@ class _SignupScreenState extends State<SignupScreen>{
                   alignment: Alignment.centerLeft,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 16, 103, 234),
+                      color: AppColors.buttonColor,
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
-                      icon: Icon(Icons.arrow_back, color: Colors.white),
+                      icon: Icon(Icons.arrow_back, color: AppColors.textColor),
                       onPressed: () => Navigator.pop(context),
                       padding: EdgeInsets.all(8),
                       constraints: BoxConstraints(),
@@ -208,7 +207,7 @@ class _SignupScreenState extends State<SignupScreen>{
               Text('Sign Up', style: TextStyle(
                 fontSize: 40,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: AppColors.textColor,
               )),
 
               const SizedBox(height:35),
@@ -216,12 +215,12 @@ class _SignupScreenState extends State<SignupScreen>{
               TextField(
                 controller: _userNameController,
                 inputFormatters: [LengthLimitingTextInputFormatter(64)],
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: AppColors.textColor),
                 decoration: InputDecoration(
                   labelText: 'Username',
-                  labelStyle: TextStyle(color: Colors.white60),
+                  labelStyle: TextStyle(color: AppColors.textColorAutor),
                   filled: true,
-                  fillColor: Color.fromARGB(255, 55, 73, 87),
+                  fillColor: AppColors.selectButtonColor,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30),
                     borderSide: BorderSide.none,
@@ -234,12 +233,12 @@ class _SignupScreenState extends State<SignupScreen>{
               TextField(
                 controller: _emailController,
                 inputFormatters: [LengthLimitingTextInputFormatter(254)],
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: AppColors.textColor),
                 decoration: InputDecoration(
                   labelText: 'Email',
-                  labelStyle: TextStyle(color: Colors.white60),
+                  labelStyle: TextStyle(color: AppColors.textColorAutor),
                   filled: true,
-                  fillColor: Color.fromARGB(255, 55, 73, 87),
+                  fillColor: AppColors.selectButtonColor,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30),
                     borderSide: BorderSide.none,
@@ -255,13 +254,13 @@ class _SignupScreenState extends State<SignupScreen>{
               TextFormField(
                   controller: _passwordController,
                   inputFormatters: [LengthLimitingTextInputFormatter(128)],
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(color: AppColors.textColor),
                   decoration: InputDecoration(
                     errorStyle: TextStyle(height: 0),
                     labelText: 'Password',
-                    labelStyle: TextStyle(color: Colors.white60),
+                    labelStyle: TextStyle(color: AppColors.textColorAutor),
                     filled: true,
-                    fillColor: Color.fromARGB(255, 55, 73, 87),
+                    fillColor: AppColors.selectButtonColor,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30),
                       borderSide: BorderSide.none,
@@ -286,12 +285,12 @@ class _SignupScreenState extends State<SignupScreen>{
               TextField(
                 controller: _confirmPasswordController,
                 inputFormatters: [LengthLimitingTextInputFormatter(128)],
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: AppColors.textColor),
                 decoration:  InputDecoration(
                   labelText: 'Confirm password',
-                  labelStyle: TextStyle(color: Colors.white60),
+                  labelStyle: TextStyle(color: AppColors.textColorAutor),
                   filled: true,
-                  fillColor: Color.fromARGB(255, 55, 73, 87),
+                  fillColor: AppColors.selectButtonColor,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30),
                     borderSide: BorderSide.none,
@@ -309,7 +308,7 @@ class _SignupScreenState extends State<SignupScreen>{
                 builder: (context, value, _){
                   return LinearProgressIndicator(
                     value:value,
-                    backgroundColor: Colors.white,
+                    backgroundColor: AppColors.textColor,
                     minHeight: 10,
                     borderRadius: BorderRadius.circular(30),
                     color: strengthColor(value),
@@ -345,7 +344,7 @@ class _SignupScreenState extends State<SignupScreen>{
               const SizedBox(height: 12),
 
               //lista hobbija
-              const Text('Select your interests:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+              const Text('Select your interests:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textColor),
               ),
               const SizedBox(height:16),
         
@@ -362,9 +361,9 @@ class _SignupScreenState extends State<SignupScreen>{
                     label: Text(interest, style: TextStyle(color: isSelected ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(179, 255, 255, 255))),
                     selected: isSelected,
                     onSelected: (_) => _selectToggle(interest),
-                    backgroundColor: Color.fromARGB(255, 55, 73, 87),
-                    selectedColor: Color.fromARGB(255, 16, 103, 234),
-                    checkmarkColor: Colors.white,
+                    backgroundColor: AppColors.selectButtonColor,
+                    selectedColor: AppColors.buttonColor,
+                    checkmarkColor: AppColors.textColor,
                     side: BorderSide.none,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     showCheckmark: false,
@@ -377,14 +376,14 @@ class _SignupScreenState extends State<SignupScreen>{
               : ElevatedButton(
                 onPressed: _signUp,
                 style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromARGB(255, 16, 103, 234),
-                foregroundColor: Colors.white,
+                backgroundColor: AppColors.buttonColor,
+                foregroundColor: AppColors.textColor,
                 padding: EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25)
                 ),
                 elevation: 4,
-                shadowColor: Color(0xFF6C63FF).withValues(alpha: 0.4)
+                shadowColor: AppColors.buttonShadow.withValues(alpha: 0.4)
               ),
                 child: const Text('Sign up', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))
               ),
@@ -393,7 +392,7 @@ class _SignupScreenState extends State<SignupScreen>{
               TextButton(
                 onPressed: () => Navigator.pop(context), 
                 style: TextButton.styleFrom(
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.textColor,
                 alignment: Alignment.center,
                 ),
                 child: const Text('Already have an account? Login!'))

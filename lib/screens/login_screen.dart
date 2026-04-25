@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/services.dart';
-import 'package:sidequest/screens/home_screen.dart';
-import 'package:sidequest/screens/reset_password_screen.dart';
-import 'package:sidequest/screens/signup_screen.dart';
+import 'home_screen.dart';
+import 'reset_password_screen.dart';
+import 'signup_screen.dart';
 import '../services/auth_service.dart';
+import '../services/color_service.dart';
 
 
 class LoginScreen extends StatefulWidget {
@@ -34,13 +35,13 @@ class _LoginScreenState extends State<LoginScreen>{
       setState(() => _errorMessage = 'Please enter email and password to proceed.');
       _emailController.clear();
       _passwordController.clear();
-      //return;
+      return;
     }
 
     if (!EmailValidator.validate(_emailController.text)) {
       setState(() => _errorMessage = 'Please enter a valid email address.');
       _emailController.clear();
-      //return;
+      return;
     }
 
     setState(() {
@@ -71,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen>{
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color.fromARGB(255, 16, 24, 40), Color.fromARGB(255, 29, 52, 97)],
+            colors: [AppColors.primaryBackground, AppColors.secondaryBackground],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -91,22 +92,22 @@ class _LoginScreenState extends State<LoginScreen>{
             Text('Welcome Back', style: TextStyle(
               fontSize: 40,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: AppColors.textColor,
             )),
             const SizedBox(height: 8),
-            Text('Login to continue', style: TextStyle(color: Colors.white60, fontSize: 20)),
+            Text('Login to continue', style: TextStyle(color: AppColors.textColorAutor, fontSize: 20)),
             const SizedBox(height: 20),
 
             //email inpput field, input tip je eamil, prelazi na password
             TextField(
               controller: _emailController,
               inputFormatters: [LengthLimitingTextInputFormatter(254)],
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: AppColors.textColor),
               decoration: InputDecoration(
                 labelText: 'Email',
-                labelStyle: TextStyle(color: Colors.white60),
+                labelStyle: TextStyle(color: AppColors.textColorAutor),
                 filled: true,
-                fillColor: Color.fromARGB(255, 55, 73, 87),
+                fillColor: AppColors.selectButtonColor,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
@@ -123,12 +124,12 @@ class _LoginScreenState extends State<LoginScreen>{
             TextField(
               controller: _passwordController,
               inputFormatters: [LengthLimitingTextInputFormatter(128)],
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: AppColors.textColor),
               decoration: InputDecoration(
                 labelText: 'Password',
-                labelStyle: TextStyle(color: Colors.white60),
+                labelStyle: TextStyle(color: AppColors.textColorAutor),
                 filled: true,
-                fillColor: Color.fromARGB(255, 55, 73, 87),
+                fillColor: AppColors.selectButtonColor,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
@@ -175,7 +176,7 @@ class _LoginScreenState extends State<LoginScreen>{
              //tekstualni gumb za mjejanje lozinke
             TextButton(
               style: TextButton.styleFrom(
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.textColor,
                 alignment: Alignment.centerLeft,
                 ),
               onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ResetPasswordScreen()),
@@ -187,14 +188,14 @@ class _LoginScreenState extends State<LoginScreen>{
             : ElevatedButton(
               onPressed: _login,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromARGB(255, 16, 103, 234),
-                foregroundColor: Colors.white,
+                backgroundColor: AppColors.buttonColor,
+                foregroundColor: AppColors.textColor,
                 padding: EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25)
                 ),
                 elevation: 4,
-                shadowColor: Color(0xFF6C63FF).withValues(alpha: 0.4)
+                shadowColor: AppColors.buttonShadow.withValues(alpha: 0.4)
               ),
               child: const Text('Login', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ),
@@ -202,7 +203,7 @@ class _LoginScreenState extends State<LoginScreen>{
             //tekstualni gumb za promjenu na singup screen
             TextButton(
               style: TextButton.styleFrom(
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.textColor,
                 alignment: Alignment.center,
               ),
               onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SignupScreen()),
