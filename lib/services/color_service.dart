@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   static const primaryBackground = Color.fromARGB(255, 16, 24, 40);
+  static const secondaryBackground = Color.fromARGB(255, 29, 52, 97);
   static const secondary = Color.fromARGB(255, 25, 36, 54);
   static const profilePost = Color.fromARGB(255, 54, 67, 99);
   static const textColor = Colors.white;
@@ -11,6 +12,7 @@ class AppColors {
   static const selectButtonColor = Color.fromARGB(255, 55, 73, 87);
   static const unselectButtonColor = Colors.white38;
   static const danger = Colors.red;
+  static const buttonShadow = Color.fromARGB(255, 108, 99, 255);
 }
 
 

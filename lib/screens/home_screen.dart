@@ -1,7 +1,9 @@
-import 'package:sidequest/services/db_read_service.dart';
-import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
+import '../services/db_read_service.dart';
 import '../widget/bottom.dart';
 import '../services/color_service.dart';
+import 'package:flutter/material.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,11 +14,14 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+  String? _errorMessage;
+  bool _isLoading = false;
 
   final ScrollController _scrollController = ScrollController();
-  
+  final AuthService _authService = AuthService();
   final InterestsService _interestsService = InterestsService();
   final PostsService _postsService = PostsService();
+  final UserInfo _userInfo = UserInfo();
 
   List<String> _userInterests =[];
   List<Map<String, dynamic>> _allPosts = [];
@@ -32,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadUserInterests().then((_) =>  _loadFilteredPosts());
     
     _scrollController.addListener((){
-      if(_scrollController.position.pixels == _scrollController.position.maxScrollExtent - 200){
+      if(_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200){
         if(_postsService.morePostsAvailable){
           _loadFilteredPosts();
         }
@@ -56,6 +61,44 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Future<void> _newPost() async{
+    if(_newTitleController.text.isEmpty){
+      setState(()=> _errorMessage = 'Please enter a title');
+      return;
+    }
+
+    else if(_newOpisController.text.isEmpty){
+      setState(()=> _errorMessage = 'Please enter a description');
+      return;
+    }
+
+    else if(_newPostInterests.isEmpty){
+      setState(()=> _errorMessage = 'Please select interests related to your post');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try{
+      await _postsService.newPost(_newTitleController.text, _newOpisController.text, _newPostInterests);
+    }catch(e){
+      setState(() => _errorMessage = 'Failed to create a post');
+    }finally{
+      setState(() => _isLoading = false);
+    }
+
+    if(mounted){
+      _newTitleController.clear();
+      _newOpisController.clear();
+      _newPostInterests.clear();
+      Navigator.pop(context);
+    }
+
+  }
+
   Future<void> _loadUserInterests() async{
     final interests = await _interestsService.loadUserInterests();
    
@@ -64,8 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadFilteredPosts() async{
     final posts = await _postsService.loadPosts(_userInterests);
-
-    if(mounted){setState(() => _allPosts = posts);}
+    if(mounted){setState(() => _allPosts.addAll(posts));}
   }
 
 
@@ -81,6 +123,8 @@ void _openNewPostSheet() {
   _newPostInterests.clear(); // clear before opening
   _newTitleController.clear();
   _newOpisController.clear();
+  _errorMessage = null;
+
   showModalBottomSheet(
     context: context,
     isScrollControlled: true, // allows it to grow with keyboard
@@ -93,7 +137,7 @@ void _openNewPostSheet() {
         builder: (context, setSheetState) {
           return Padding(
             padding: EdgeInsets.fromLTRB(16, 16, 16, 
-              MediaQuery.of(context).viewInsets.bottom + 16), // moves up with keyboard
+              MediaQuery.of(context).viewInsets.bottom + 16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -169,20 +213,38 @@ void _openNewPostSheet() {
                     );
                   }).toList(),
                 ),
+
+                AnimatedSize(
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  child: _errorMessage != null ? 
+                  Container(
+                        margin: EdgeInsets.only(top: 16),
+                       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                       decoration: BoxDecoration(
+                          color: Colors.red.withValues(alpha: 0.15),  // light red background
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.red.withValues(alpha: 0.4)), // subtle red border
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.error_outline, color: Colors.red, size: 18),
+                            SizedBox(width: 8),
+                            Expanded(
+                             child: Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+                           ),
+                         ],
+                        ),
+                     )
+                    : SizedBox.shrink(),
+                ),
+
                 const SizedBox(height: 16),
 
                 // submit button
-                ElevatedButton(
-                  onPressed: () {
-                    if (_newTitleController.text.isEmpty) return;
-                    setState(() {
-                      //TODO: post logika
-                    });
-                    _newTitleController.clear();
-                    _newOpisController.clear();
-                    _newPostInterests.clear();
-                    Navigator.pop(context);
-                  },
+                _isLoading? const Center (child: CircularProgressIndicator())
+              : ElevatedButton(
+                  onPressed: _newPost,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.buttonColor,
                     foregroundColor: AppColors.textColor,
@@ -210,22 +272,22 @@ void _openNewPostSheet() {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 16, 24, 40),
+      backgroundColor: AppColors.primaryBackground,
       floatingActionButton: FloatingActionButton(
         onPressed: _openNewPostSheet,
         backgroundColor: AppColors.buttonColor,
         child: Icon(Icons.add, color: AppColors.textColor),
       ),
       body: SafeArea(
-        top: false,
+        top: true,
         child: Column(
           children: [
             // tvoji interesi
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(16, 50, 16, 16),
+              padding: EdgeInsets.fromLTRB(16, MediaQuery.of(context).viewInsets.bottom + 16, 16, 16),
               decoration: BoxDecoration(
-                color: Color.fromARGB(255, 25, 36, 54),
+                color: AppColors.primaryBackground,
                 borderRadius: BorderRadius.only(
                 ),
               ),
@@ -246,13 +308,13 @@ void _openNewPostSheet() {
                             child: FilterChip(
                                       label: Text(
                                         interest,
-                                        style: TextStyle(color: isSelected ? Colors.white : Colors.white70),
+                                        style: TextStyle(color: isSelected ? AppColors.textColor : AppColors.textColorOpis),
                                       ),
                                       selected: isSelected,
                                       onSelected: (_) => _selectToggle(interest),
-                                      backgroundColor: const Color.fromARGB(255, 55, 73, 87),
-                                      selectedColor: const Color.fromARGB(255, 16, 103, 234),
-                                      checkmarkColor: Colors.white,
+                                      backgroundColor: AppColors.selectButtonColor,
+                                      selectedColor: AppColors.buttonColor,
+                                      checkmarkColor: AppColors.textColor,
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                                       showCheckmark: false,
                                     ),
@@ -265,8 +327,6 @@ void _openNewPostSheet() {
               ),
             ),
 
-            // TextButton(onPressed: _logout, child: const Text('Logout')),
-
             // Postovi
             Expanded(
               child: Container(
@@ -275,7 +335,7 @@ void _openNewPostSheet() {
                     ? const Center(
                         child: Text(
                           'Currently no available post for chosen interests',
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(color: AppColors.textColor),
                         ),
                       )
                     : ListView.builder(
@@ -287,14 +347,14 @@ void _openNewPostSheet() {
                           if (index == _allPosts.length) {
                             return _postsService.morePostsAvailable
                               ? const Center(child: CircularProgressIndicator())
-                              : const Center(child: Text('No more posts', style: TextStyle(color: Colors.white)));
+                              : const Center(child: Text('No more posts', style: TextStyle(color: AppColors.textColor)));
                           }
 
                           return Container(
                             margin: const EdgeInsets.symmetric(vertical: 8),
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Color.fromARGB(255, 25, 36, 54),
+                              color: AppColors.secondary,
                               borderRadius: BorderRadius.circular(16),
                               
                             ),
@@ -302,19 +362,19 @@ void _openNewPostSheet() {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 
-                                Text(post['title']??'', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                                Text(post['title']??'', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textColor)),
                                 const SizedBox(height: 6),
-                                Text(post['description']??'', style: TextStyle(color: Colors.white70),),
+                                Text(post['description']??'', style: TextStyle(color: AppColors.textColorOpis),),
                                 const SizedBox(height: 8),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('Autor: ${post['authorId']??''}', style: const TextStyle(fontStyle: FontStyle.italic, color: Colors.white60)),
+                                    Text('Author: ${post['authorId']??''}', style: const TextStyle(fontStyle: FontStyle.italic, color: AppColors.textColorAutor)),
                                     Wrap(
                                       spacing: 6,
                                       children: (post['interests'] as List<dynamic>? ?? []).cast<String>().map((i) => Chip(
-                                        label: Text(i, style: TextStyle(color: Colors.white, fontSize: 12)),
-                                        backgroundColor: Color.fromARGB(255, 16, 103, 234),
+                                        label: Text(i, style: TextStyle(color: AppColors.textColor, fontSize: 12)),
+                                        backgroundColor: AppColors.buttonColor,
                                         padding: EdgeInsets.zero,
                                       )).toList(),
                                     )

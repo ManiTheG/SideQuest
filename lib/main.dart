@@ -2,8 +2,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'services/firebase_options.dart';
-import 'package:sidequest/screens/login_screen.dart';
-import 'package:sidequest/screens/home_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'screens/search.dart';
 import 'screens/profile.dart';
@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
       routes: {
                 '/home': (ctx) => const HomeScreen(),
                 '/search': (ctx) => const SearchPage(),
-                '/profile': (ctx) => const ProfilePage.preset(),
+                '/profile': (ctx) => const ProfilePage(),
             },
     );
   }

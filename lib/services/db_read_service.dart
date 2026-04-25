@@ -124,6 +124,34 @@ class PostsService{
     return [];
   }
 
+  Future<void> newPost(String _newTitleController, String _newOpisController, List<String> _newPostInterests, ) async{
+    try{
+    final refrence = await firestoreSideQuest.collection('posts').add(
+      { 'authorId': await _userInfo.getUsername(),
+        'title': _newTitleController.trim(),
+        'description': _newOpisController.trim(),
+        'interests': _newPostInterests,
+        'created': FieldValue.serverTimestamp(),
+      },
+    ).timeout( Duration(seconds: 10 ), onTimeout: ()=> throw Exception('Request timed out. please try again'));
+      
+    final user = _authService.currentUser;
+    await firestoreSideQuest.collection('users').doc(user!.uid).collection('posts').add(
+      {
+        'postId': refrence.id,
+        'authorId': await _userInfo.getUsername(),
+        'title': _newTitleController.trim(),
+        'description': _newOpisController.trim(),
+        'interests': _newPostInterests,
+        'created': FieldValue.serverTimestamp(),
+      },
+      ).timeout( Duration(seconds: 10 ), onTimeout: ()=> throw Exception('Request timed out. please try again'));
+    }catch(e){
+      throw Exception('Failed to create a post: $e');
+    }
+
+  }
+
 }
 
 class UserInfo{
@@ -170,3 +198,5 @@ class UserInfo{
   }
 
 }
+
+final UserInfo _userInfo = UserInfo();
