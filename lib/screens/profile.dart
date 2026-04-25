@@ -470,9 +470,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               )),
                               const SizedBox(height: 16),
                               ElevatedButton(
-                                onPressed: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Create post')));
-                                },
+                                onPressed: _openNewPostSheet,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.buttonColor,
                                   foregroundColor: AppColors.textColor,

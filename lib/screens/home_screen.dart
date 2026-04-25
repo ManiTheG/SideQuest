@@ -1,7 +1,7 @@
 import 'package:sidequest/services/db_read_service.dart';
 import 'package:flutter/material.dart';
 import '../widget/bottom.dart';
-
+import '../services/color_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,7 +22,9 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _allPosts = [];
 
   final List<String> _selectedInterests = [];
-
+  final TextEditingController _newTitleController = TextEditingController();
+  final TextEditingController _newOpisController = TextEditingController();
+  final List<String> _newPostInterests = [];
 
   @override
   void initState() {
@@ -75,11 +77,145 @@ class _HomeScreenState extends State<HomeScreen> {
     }).toList();
   }
 
+void _openNewPostSheet() {
+  _newPostInterests.clear(); // clear before opening
+  _newTitleController.clear();
+  _newOpisController.clear();
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true, // allows it to grow with keyboard
+    backgroundColor: AppColors.secondary,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (context) {
+      return StatefulBuilder( 
+        builder: (context, setSheetState) {
+          return Padding(
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 
+              MediaQuery.of(context).viewInsets.bottom + 16), // moves up with keyboard
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text('New Post', style: TextStyle(
+                  color: AppColors.textColor,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                )),
+                const SizedBox(height: 16),
+
+                // title field
+                TextField(
+                  controller: _newTitleController,
+                  style: TextStyle(color: AppColors.textColor),
+                  decoration: InputDecoration(
+                    labelText: 'Title',
+                    labelStyle: TextStyle(color: AppColors.textColorOpis),
+                    filled: true,
+                    fillColor: AppColors.selectButtonColor,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // post body field
+                TextField(
+                  controller: _newOpisController,
+                  style: TextStyle(color: AppColors.textColor),
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    labelText: 'Write your post...',
+                    labelStyle: TextStyle(color: AppColors.textColorOpis),
+                    filled: true,
+                    fillColor: AppColors.selectButtonColor,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // tags
+                Text('Tags', style: TextStyle(color: AppColors.textColorOpis)),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: _userInterests.map((interest) {
+                    final isSelected = _newPostInterests.contains(interest);
+                    return FilterChip(
+                      label: Text(interest, style: TextStyle(
+                        color: isSelected ? AppColors.textColor : AppColors.textColorOpis,
+                      )),
+                      selected: isSelected,
+                      onSelected: (_) {
+                        setSheetState(() { 
+                          if (isSelected) {
+                            _newPostInterests.remove(interest);
+                          } else {
+                            _newPostInterests.add(interest);
+                          }
+                        });
+                      },
+                      backgroundColor: AppColors.selectButtonColor,
+                      selectedColor: AppColors.buttonColor,
+                      showCheckmark: false,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 16),
+
+                // submit button
+                ElevatedButton(
+                  onPressed: () {
+                    if (_newTitleController.text.isEmpty) return;
+                    setState(() {
+                      //TODO: post logika
+                    });
+                    _newTitleController.clear();
+                    _newOpisController.clear();
+                    _newPostInterests.clear();
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.buttonColor,
+                    foregroundColor: AppColors.textColor,
+                    padding: EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: Text('Post'),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  ).whenComplete(() {
+    setState(() {
+      _newTitleController.clear();
+      _newOpisController.clear();
+      _newPostInterests.clear();
+    });
+    });
+}
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 16, 24, 40),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _openNewPostSheet,
+        backgroundColor: AppColors.buttonColor,
+        child: Icon(Icons.add, color: AppColors.textColor),
+      ),
       body: SafeArea(
         top: false,
         child: Column(
