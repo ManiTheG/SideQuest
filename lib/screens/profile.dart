@@ -25,7 +25,7 @@ class _ProfilePageState extends State<ProfilePage> {
   List<String> _userInterests = [];
   List<Map<String, dynamic>> _userPosts = [];
   String _username = '';
-  final String _userBio = '';
+  String _userBio = '';
 
   final TextEditingController _newTitleController = TextEditingController();
   final TextEditingController _newOpisController = TextEditingController();
@@ -400,7 +400,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              if (_userBio != null && _userBio.isNotEmpty)
+                              if (_userBio.isNotEmpty)
                                 Padding(
                                   padding: const EdgeInsets.only(top: 4),
                                   child: Text(
