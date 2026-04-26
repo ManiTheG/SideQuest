@@ -7,6 +7,7 @@ import 'package:sidequest/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'screens/search.dart';
 import 'screens/profile.dart';
+import 'package:flutter/services.dart';
 
 
 void main() async {
@@ -14,6 +15,12 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
   runApp(const MyApp());
 }
 

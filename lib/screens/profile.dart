@@ -181,8 +181,12 @@ class _ProfilePageState extends State<ProfilePage> {
                     padding: EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: Text('Post'),
+                  child: Text(
+                    'Post',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),
+                    ),
                 ),
+                const SizedBox(height: 48),
               ],
             ),
           );
@@ -197,6 +201,62 @@ class _ProfilePageState extends State<ProfilePage> {
     });
     });
 }
+
+void _openNewIntSheet() {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true, // allows it to grow with keyboard
+    backgroundColor: AppColors.secondary,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (context) {
+      return StatefulBuilder( 
+        builder: (context, setSheetState) {
+          return Padding(
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 
+              MediaQuery.of(context).viewInsets.bottom + 16), // moves up with keyboard
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text('Add Interest', style: TextStyle(
+                  color: AppColors.textColor,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                )),
+                const SizedBox(height: 16),
+
+                //TODO: dodati logiku za dodavnje novih interesa
+
+                // submit button
+                ElevatedButton(
+                  onPressed: () {
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.buttonColor,
+                    foregroundColor: AppColors.textColor,
+                    padding: EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: Text(
+                    'Add',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),
+                    ),
+                ),
+                const SizedBox(height: 48),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  ).whenComplete(() {
+    setState(() {
+    });
+    });
+}
+
 
   Future<void> _logout() async {
   final confirmed = await showDialog<bool>(
@@ -376,7 +436,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           const SizedBox(width: 8),
                           const Spacer(),
                           ElevatedButton(
-                            onPressed: () {},
+                            onPressed: _openNewIntSheet,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.buttonColor,
                               minimumSize: Size.zero,
