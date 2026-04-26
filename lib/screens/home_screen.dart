@@ -17,10 +17,8 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isLoading = false;
 
   final ScrollController _scrollController = ScrollController();
-  final AuthService _authService = AuthService();
   final InterestsService _interestsService = InterestsService();
   final PostsService _postsService = PostsService();
-  final UserInfo _userInfo = UserInfo();
 
   List<String> _userInterests = [];
   List<Map<String, dynamic>> _allPosts = [];
@@ -391,7 +389,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: AppColors.textColor,
                         backgroundColor: Colors.transparent,
                         elevation: 0,
-                        displacement: 5, 
+                        displacement: 0,
                         onRefresh: () async {
                           setState(() => _allPosts.clear());
                           _postsService.refresh();
