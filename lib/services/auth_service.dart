@@ -8,11 +8,9 @@ final firestoreSideQuest = FirebaseFirestore.instanceFor(
 );
 
 class AuthService {
-
   // instanciranje FirebaseAuth-a koji će se bbrinuti za autentifikaciju
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  
   // getter za Stream podataka (login user/logout null) u kojem auth sluša promjene
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
@@ -31,10 +29,8 @@ class AuthService {
     }
   }
 
-
   //funkcija za login korisnika. Pokušava prijavit korisnika, ako uspije vrača UserCredetials ako ne, baca error
   Future<UserCredential> login(String email, String password) async {
-  
     try {
       return await _auth.signInWithEmailAndPassword(
         email: email.trim(),
@@ -42,7 +38,6 @@ class AuthService {
       );
     } on FirebaseAuthException catch (e) {
       throw _handleError(e);
-      
     }
   }
 

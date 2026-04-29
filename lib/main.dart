@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
       routes: {
                 '/home': (ctx) => const HomeScreen(),
                 '/search': (ctx) => const SearchPage(),
-                '/profile': (ctx) => const ProfilePage.preset(),
+                '/profile': (ctx) => const ProfilePage(),
             },
     );
   }
