@@ -93,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 12),
 
               //TODO: povečaj ikonu i zamjeni u failu img sa logom bez pozadine
-              Image.asset('assets/img/SQ.png', height: 64),
+              Image.asset('assets/img/SQ.png', height: 128),
               const SizedBox(height: 8),
               Text(
                 'Welcome Back',
@@ -153,12 +153,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 onSubmitted: (_) => _login(),
               ),
 
-              //Postojanje greske ispod password polja
-              /*if(_errorMessage !=null)...[
-              const SizedBox(height: 16),
-              Padding(padding: const EdgeInsets.only(left: 24)),
-              child: Text(_errorMessage!, style: const TextStyle(color: Colors.red),),
-            ],*/
               AnimatedSize(
                 duration: Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
@@ -214,7 +208,11 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
 
               _isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.textColor,
+                      ),
+                    )
                   //gumb za poziv login funkcije
                   : ElevatedButton(
                       onPressed: _login,

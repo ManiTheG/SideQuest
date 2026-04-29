@@ -287,8 +287,16 @@ class _HomeScreenState extends State<HomeScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: Text('Post'),
+
+                          child: Text(
+                            'Post',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
+                  const SizedBox(height: 48),
                 ],
               ),
             );

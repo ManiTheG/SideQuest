@@ -27,6 +27,8 @@ class _ProfilePageState extends State<ProfilePage> {
   String _username = '';
   String _userBio = '';
 
+  List<String> _allInterests = [];
+
   final TextEditingController _newTitleController = TextEditingController();
   final TextEditingController _newOpisController = TextEditingController();
   final List<String> _newPostInterests = [];
@@ -34,15 +36,29 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
+    _loadAllInterests();
     _loadUserInterests();
     _loadUserPosts();
     _getUsername();
+    _getBio();
   }
 
   Future<void> _getUsername() async {
     final username = await _userInfo.getUsername();
 
     setState(() => _username = username);
+  }
+
+  Future<void> _loadAllInterests() async {
+    final interests = await _interestsService.loadAllInterests();
+
+    setState(() => _allInterests = interests);
+  }
+
+  Future<void> _getBio() async {
+    final bio = await _userInfo.getbio();
+
+    setState(() => _userBio = bio);
   }
 
   Future<void> _loadUserPosts() async {
@@ -55,6 +71,29 @@ class _ProfilePageState extends State<ProfilePage> {
     final interests = await _interestsService.loadUserInterests();
 
     setState(() => _userInterests = interests);
+  }
+
+  Future<void> _updateInterests() async {
+    try {
+      final user = _authService.currentUser;
+      await firestoreSideQuest.collection('users').doc(user!.uid).update({
+        'interests': _userInterests,
+      });
+    } catch (e) {
+      setState(() => _errorMessage = 'Failed to update');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _selectToggle(List<String> tempInterests, String interest) {
+    setState(() {
+      if (tempInterests.contains(interest)) {
+        tempInterests.remove(interest);
+      } else {
+        tempInterests.add(interest);
+      }
+    });
   }
 
   Future<void> _newPost() async {
@@ -95,6 +134,121 @@ class _ProfilePageState extends State<ProfilePage> {
       _loadUserPosts();
       Navigator.pop(context);
     }
+  }
+
+  void _openNewIntSheet() {
+    List<String> tempInterests = List.from(_userInterests);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // allows it to grow with keyboard
+      backgroundColor: AppColors.secondary,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Padding(
+              padding: EdgeInsets.fromLTRB(
+                16,
+                16,
+                16,
+                MediaQuery.of(context).viewInsets.bottom + 16,
+              ), // moves up with keyboard
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Add/remove Interest',
+                    style: TextStyle(
+                      color: AppColors.textColor,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  //tipkice za interes
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    runAlignment: WrapAlignment.center,
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: _allInterests.map((interest) {
+                      final isSelected = tempInterests.contains(interest);
+                      return FilterChip(
+                        label: Text(
+                          interest,
+                          style: TextStyle(
+                            color: isSelected
+                                ? const Color.fromARGB(255, 255, 255, 255)
+                                : const Color.fromARGB(179, 255, 255, 255),
+                          ),
+                        ),
+                        selected: isSelected,
+                        onSelected: (_) {
+                          setSheetState(() {
+                            _selectToggle(tempInterests, interest);
+                          });
+                        },
+                        backgroundColor: AppColors.selectButtonColor,
+                        selectedColor: AppColors.buttonColor,
+                        checkmarkColor: AppColors.textColor,
+                        side: BorderSide.none,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        showCheckmark: false,
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 24),
+
+                  _isLoading
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.textColor,
+                          ),
+                        )
+                      :
+                        // submit button
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _userInterests =
+                                  tempInterests; // ← commit to real list
+                            });
+                            _updateInterests();
+                            Navigator.pop(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.buttonColor,
+                            foregroundColor: AppColors.textColor,
+                            padding: EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            'Add/remove',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                  const SizedBox(height: 48),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    ).whenComplete(() {
+      setState(() {});
+    });
   }
 
   Future<void> _logout() async {
@@ -320,8 +474,15 @@ class _ProfilePageState extends State<ProfilePage> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: Text('Post'),
+                          child: Text(
+                            'Post',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
+                  const SizedBox(height: 48),
                 ],
               ),
             );
@@ -488,7 +649,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         const SizedBox(width: 8),
                         const Spacer(),
                         ElevatedButton(
-                          onPressed: () {},
+                          onPressed: _openNewIntSheet,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.buttonColor,
                             minimumSize: Size.zero,
