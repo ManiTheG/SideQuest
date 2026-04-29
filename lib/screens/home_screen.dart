@@ -387,10 +387,31 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: _filteredPosts.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'Currently no available post for chosen interests',
-                          style: TextStyle(color: AppColors.textColor),
+                    ? RefreshIndicator(
+                        color: AppColors.textColor,
+                        backgroundColor: Colors.transparent,
+                        elevation: 0,
+                        displacement: 0,
+                        onRefresh: () async {
+                          setState(() => _allPosts.clear());
+                          _postsService.refresh();
+                          await _loadFilteredPosts();
+                        },
+                        child: ListView(
+                          // ← must be a scrollable widget for RefreshIndicator to work
+                          physics:
+                              const AlwaysScrollableScrollPhysics(), // ← required!
+                          children: [
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.6,
+                              child: const Center(
+                                child: Text(
+                                  'Currently no available post for chosen interests',
+                                  style: TextStyle(color: AppColors.textColor),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       )
                     : RefreshIndicator(
