@@ -92,8 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               const SizedBox(height: 12),
 
-              //TODO: povečaj ikonu i zamjeni u failu img sa logom bez pozadine
-              Image.asset('assets/img/SQ.png', height: 128),
+              Image.asset('assets/icons/SQ2.png', height: 128),
               const SizedBox(height: 8),
               Text(
                 'Welcome Back',
