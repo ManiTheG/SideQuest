@@ -3,7 +3,7 @@ import '../widget/bottom.dart';
 import '../services/color_service.dart';
 import '../services/db_read_service.dart';
 
-List<String> InteresiZaPretragu = [];
+List<String> interesiZaPretragu = [];
 
 List<Map<String, dynamic>> _prikazaniPostovi = [];
 List<Map<String, dynamic>> _postovi = [];
@@ -37,12 +37,12 @@ class _SearchPageState extends State<SearchPage> {
   Future<void> _loadAllInterests() async {
     final interests = await _interestsService.loadAllInterests();
     if (mounted) {
-      setState(() => InteresiZaPretragu = interests);
+      setState(() => interesiZaPretragu = interests);
     }
   }
 
   Future<void> _loadPosts() async {
-    final posts = await _postsService.loadPosts(InteresiZaPretragu);
+    final posts = await _postsService.loadPosts(interesiZaPretragu);
     if (mounted) {
       setState(() => _prikazaniPostovi = posts);
       setState(() => _postovi = posts);
@@ -133,8 +133,8 @@ class _SearchPageState extends State<SearchPage> {
                   (BuildContext context, SearchController controller) {
                     final String input = _searchController.value.text;
                     final Iterable<String> matches = input.isEmpty
-                        ? InteresiZaPretragu.take(100)
-                        : InteresiZaPretragu.where(
+                        ? interesiZaPretragu.take(100)
+                        : interesiZaPretragu.where(
                             (s) =>
                                 s.toLowerCase().contains(input.toLowerCase()),
                           );

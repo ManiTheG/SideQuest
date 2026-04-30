@@ -3,8 +3,7 @@ import 'package:sidequest/services/color_service.dart';
 
 class SharedBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
-  const SharedBottomNavigationBar({Key? key, required this.currentIndex})
-    : super(key: key);
+  const SharedBottomNavigationBar({super.key, required this.currentIndex});
 
   @override
   Widget build(BuildContext context) {
