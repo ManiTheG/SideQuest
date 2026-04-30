@@ -1,4 +1,3 @@
-import '../services/auth_service.dart';
 import '../services/db_read_service.dart';
 import '../widget/bottom.dart';
 import '../services/color_service.dart';
@@ -12,7 +11,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
   String? _errorMessage;
   bool _isLoading = false;
 
@@ -21,7 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final PostsService _postsService = PostsService();
 
   List<String> _userInterests = [];
-  List<Map<String, dynamic>> _allPosts = [];
+  final List<Map<String, dynamic>> _allPosts = [];
 
   final List<String> _selectedInterests = [];
   final TextEditingController _newTitleController = TextEditingController();

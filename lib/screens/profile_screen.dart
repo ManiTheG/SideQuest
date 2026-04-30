@@ -13,7 +13,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  int _currentIndex = 2;
   String? _errorMessage;
   bool _isLoading = false;
 
@@ -877,20 +876,5 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildStatColumn(String value, String label) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: AppColors.textColor,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(label, style: const TextStyle(color: AppColors.textColorOpis)),
-      ],
-    );
-  }
+  
 }

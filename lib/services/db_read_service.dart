@@ -53,7 +53,7 @@ class PostsService {
     List<String>? interestFilter,
   ) async {
     try {
-      var query = await firestoreSideQuest
+      var query = firestoreSideQuest
           .collection('posts')
           .orderBy('created', descending: true)
           .limit(20);
@@ -92,12 +92,12 @@ class PostsService {
   }
 
   Future<List<Map<String, dynamic>>> loadUserPosts() async {
-    final _user = _authService.currentUser;
-    if (_user != null) {
+    final user = _authService.currentUser;
+    if (user != null) {
       try {
-        var query = await firestoreSideQuest
+        var query = firestoreSideQuest
             .collection('users')
-            .doc(_user.uid)
+            .doc(user.uid)
             .collection('posts')
             .orderBy('created', descending: true);
 
@@ -123,18 +123,18 @@ class PostsService {
   }
 
   Future<void> newPost(
-    String _newTitleController,
-    String _newOpisController,
-    List<String> _newPostInterests,
+    String newTitleController,
+    String newOpisController,
+    List<String> newPostInterests,
   ) async {
     try {
       final refrence = await firestoreSideQuest
           .collection('posts')
           .add({
             'authorId': await _userInfo.getUsername(),
-            'title': _newTitleController.trim(),
-            'description': _newOpisController.trim(),
-            'interests': _newPostInterests,
+            'title': newTitleController.trim(),
+            'description': newOpisController.trim(),
+            'interests': newPostInterests,
             'created': FieldValue.serverTimestamp(),
           })
           .timeout(
@@ -151,9 +151,9 @@ class PostsService {
           .add({
             'postId': refrence.id,
             'authorId': await _userInfo.getUsername(),
-            'title': _newTitleController.trim(),
-            'description': _newOpisController.trim(),
-            'interests': _newPostInterests,
+            'title': newTitleController.trim(),
+            'description': newOpisController.trim(),
+            'interests': newPostInterests,
             'created': FieldValue.serverTimestamp(),
           })
           .timeout(
@@ -186,10 +186,10 @@ class UserInfo {
 
       if (snap.exists) {
         Map<String, dynamic>? data = snap.data();
-        var _usernameRead = data?['username'];
-        var _bioRead = data?['bio'];
-        _username = _usernameRead.toString();
-        _bio = _bioRead.toString();
+        var usernameRead = data?['username'];
+        var bioRead = data?['bio'];
+        _username = usernameRead.toString();
+        _bio = bioRead.toString();
       }
       return '';
     } catch (e) {
